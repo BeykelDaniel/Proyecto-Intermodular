@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Tus estilos personalizados abajo */
+.navbar-custom {
+    /* El !important es útil si Bootstrap está cargando después y sobreescribe */
+    background-color: rgb(184, 179, 83) !important; 
+}
