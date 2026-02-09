@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <nav class="navbar navbar-expand-md navbar-dark" style="background-color: rgb(235, 208, 142) !important; padding: 10px 0;">
     <div class="container-fluid">
         <!-- Logo con recorte circular perfecto -->
@@ -12,12 +13,25 @@
                        /* Esto corta cualquier rastro de blanco en las esquinas */
                        clip-path: circle(50% at center);">
         </a>
+=======
+<nav class="navbar navbar-expand-md navbar-dark" style="background-color: rgb(235, 208, 142) !important;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><img src="{{ asset('logo.png') }}" alt="Tenderete Logo"
+                style="height: 100px; width: 100px;"></a>
+>>>>>>> b5b51b0bb45621dde3866f7afb008d296d778214
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+<<<<<<< HEAD
+=======
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('usuarios.index') }}"
+                        style="color: #32424D !important;">Usuarios</a>
+                </li>
+>>>>>>> b5b51b0bb45621dde3866f7afb008d296d778214
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                         data-bs-toggle="dropdown" aria-expanded="false" style="color: #32424D !important;">
