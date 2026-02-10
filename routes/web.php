@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 // Bienvenida
 Route::get('/', function () {
-    return view('welcome');
+    return view('pagina.inicio');
 });
 
 // Página de inicio (Solo visualización)
