@@ -1,35 +1,51 @@
 <?php
 
-<<<<<<< HEAD
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
-=======
->>>>>>> b5b51b0bb45621dde3866f7afb008d296d778214
+use App\Http\Controllers\ActividadesController;
+use App\Http\Controllers\InscripcionesController;
+use App\Http\Controllers\AuthController; 
 use Illuminate\Support\Facades\Route;
 
+// --- RUTAS PÚBLICAS ---
+
 Route::get('/', function () {
-    return view('welcome');
+    return view('pagina.inicio');
 });
 
-<<<<<<< HEAD
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/inicio', function () {
+    return view('pagina.inicio');
+})->name('pagina.inicio');
 
-Route::middleware('auth')->group(function () {
+// AQUÍ ESTABA EL ERROR: He cambiado 'auth.login_usuarios' por 'pagina.login_usuarios'
+Route::get('/login-usuarios', function () {
+    return view('pagina.login_usuarios'); 
+})->name('pagina.login_usuarios');
+
+Route::post('/login-usuarios', [AuthController::class, 'authenticate'])->name('login.custom');
+Route::post('/registro-usuarios', [UsuarioController::class, 'store'])->name('usuarios.store_publico');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// --- RUTAS PROTEGIDAS ---
+
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::post('/actividades/{id}/inscribir', [InscripcionesController::class, 'inscribir'])
+        ->name('actividades.inscribir');
+
+    Route::resource('actividades', ActividadesController::class)->parameters([
+        'actividades' => 'actividad'
+    ]);
+
     Route::resource('usuarios', UsuarioController::class);
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
-
-Route::get('/inicio', function () {
-    return view('inicio');
-})->name('inicio');
-=======
-use App\Http\Controllers\UsuarioController;
-
-Route::resource('usuarios', UsuarioController::class);
->>>>>>> b5b51b0bb45621dde3866f7afb008d296d778214
+require __DIR__ . '/auth.php';

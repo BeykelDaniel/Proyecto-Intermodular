@@ -1,26 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('titulo')</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>@yield('title', 'Tenderete')</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-        integrity="sha384-tViUnnbYAV00FLIhhi3v/dWt3Jxw4gZQcNoSCxCIFNJVCx7/D55/wXsrNIRANwdD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
-<body>
+<body class="bg-gray-100 antialiased font-sans">
+
     @include('navbar')
 
+    <main class="container mx-auto mt-8 px-4 min-h-screen">
 
-    @yield('contenido')
+        {{-- Inyectamos el contenido de cada vista (Login, Registro, Usuarios...) --}}
+        @yield('contenido')
+
+    </main>
+
+    <footer class="py-6 text-center text-gray-500 text-sm">
+        &copy; {{ date('Y') }} Tenderete - Todos los derechos reservados.
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. Mensaje de Éxito (Verde)
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Operación realizada!',
+                    text: "{{ session('success') }}",
+                    confirmButtonColor: '#1e293b', // Color azul oscuro de tu botón de login
+                    timer: 3500,
+                    timerProgressBar: true
+                });
+            @endif
+
+            // 2. Errores de Validación (Rojo)
+            @if ($errors -> any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hay errores en el formulario',
+                    html: `
+                        <div class="text-left mt-2 px-4">
+                            <ul class="list-disc text-sm text-red-600">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    `,
+                    confirmButtonColor: '#bc6a50', // Color teja de tu botón de registro
+                });
+            @endif
+        });
+    </script>
+
+    @stack('scripts')
+
 </body>
 
 </html>
