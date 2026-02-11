@@ -87,7 +87,10 @@
         </button>
 
         <ul id="nav-menu" class="flex flex-row items-center gap-x-6 md:gap-x-10 lg:gap-x-14 font-bold">
-
+            <li><a href="#"
+                    class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors"><i
+                        class="fa-solid fa-users"></i> Mis Amigos</a>
+            </li>
             <li class="relative dropdown-container" x-data="{ dropdown: false }">
                 <button @click="dropdown = !dropdown; if(dropdown) setTimeout(() => window.fpInstancia.redraw(), 50)"
                     class="text-[#32424D] uppercase flex items-center whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors">
@@ -118,17 +121,15 @@
             <li><a href="#"
                     class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors">Nosotros</a>
             </li>
-            <li><a href="#"
-                    class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors">Amigos</a>
-            </li>
+
 
             @auth
             <li>
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
                     <button type="submit"
-                        class="text-[#82aeb4] font-black uppercase whitespace-nowrap text-xs md:text-base hover:scale-105 transition-transform"><i
-                            class="fa-solid fa-user"></i>Salir</button>
+                        class="text-[#bc6a50] font-black uppercase whitespace-nowrap text-xs md:text-base hover:scale-105 transition-transform"><i
+                            class="fa-solid fa-user"></i> Salir</button>
                 </form>
             </li>
             @else

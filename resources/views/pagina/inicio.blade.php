@@ -72,16 +72,19 @@
                     <span class="text-[#bc6a50] font-bold">{{ $a->precio }}€</span>
                 </div>
                 <div class="flex flex-wrap items-center gap-x-3 text-xs font-bold mb-4 uppercase tracking-wide">
-                    <span class="text-[#3b4d57]">📍 {{ $a->lugar }}</span>
-                    <span class="text-[#3b4d57] opacity-100">|</span>
-                    <span class="text-[#bc6a50]"> {{ \Carbon\Carbon::parse($a->fecha)->format('d/m/Y') }}</span>
-                    <span class="text-[#3b4d57] opacity-100">|</span>
-                    <span class="text-[#3b4d57]"> {{ \Carbon\Carbon::parse($a->hora)->format('H:i') }}h</span>
+                    <span class="text-[#3b4d57] font-bold text-sm">
+                        <i class="fa-solid fa-location-dot text-[#bc6a50]"></i> {{ $a->lugar }}</span>
+                    <span class="text-[#3b4d57] font-bold text-sm">|</span>
+                    <span class="text-[#3b4d57] font-bold text-sm"> {{ \Carbon\Carbon::parse($a->fecha)->format('d/m/Y')
+                        }}</span>
+                    <span class="text-[#3b4d57] font-bold text-sm">|</span>
+                    <span class="text-[#3b4d57] font-bold text-sm"> {{ \Carbon\Carbon::parse($a->hora)->format('H:i')
+                        }}h</span>
                 </div>
                 <div class="mt-2 mb-2 flex justify-between items-center font-bold">
                     <span class="text-[10px] text-blue-500 font-bold uppercase">Cupos: {{ $a->cupos }}</span>
                     @if(in_array($a->id, $misIds))
-                    <button class="bg-gray-100 text-gray-400 px-4 py-1.5 rounded-lg font-black text-xs uppercase"
+                    <button class="bg-gray-300 text-black px-4 py-1.5 rounded-lg font-black text-xs uppercase"
                         disabled>¡Apuntado!</button>
                     @else
                     <button id="btn-{{ $a->id }}" onclick="abrirModal({{ json_encode($a) }})"
@@ -127,7 +130,7 @@
         actSel = a;
         document.getElementById('modal-body').innerHTML = `
             <h3 class="text-2xl font-black text-gray-800 uppercase">${a.nombre}</h3>
-            <p class="text-gray-400 font-bold mt-2">📍 ${a.lugar}</p>
+            <p class="text-gray-400 font-bold mt-2"> <i class="fa-solid fa-location-dot text-[#bc6a50]"></i> ${a.lugar}</p>
             <div class="mt-6 bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-200">
                 <p class="text-[#bc6a50] text-2xl font-black">${a.hora.substring(0, 5)}h</p>
             </div>
