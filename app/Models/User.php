@@ -9,6 +9,9 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    public function actividades() {
+        return $this->belongsToMany(Actividades::class, 'actividad_user', 'user_id', 'actividades_id');
+    }
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 

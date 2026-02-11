@@ -2,35 +2,31 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\ActividadesController;
+use App\Http\Controllers\InscripcionesController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 // --- RUTAS PÚBLICAS ---
 
-// Bienvenida
 Route::get('/', function () {
     return view('pagina.inicio');
 });
 
-// Página de inicio (Solo visualización)
 Route::get('/inicio', function () {
     return view('pagina.inicio');
 })->name('pagina.inicio');
 
-// Formulario de Login/Registro (Vista)
+// AQUÍ ESTABA EL ERROR: He cambiado 'auth.login_usuarios' por 'pagina.login_usuarios'
 Route::get('/login-usuarios', function () {
     return view('pagina.login_usuarios');
 })->name('pagina.login_usuarios');
 
-// Procesar Login (Bloque Azul)
-Route::post('/login-usuarios', [UsuarioController::class , 'login'])->name('login.custom');
-
-// Procesar Registro (Bloque Teja)
+Route::post('/login-usuarios', [AuthController::class , 'authenticate'])->name('login.custom');
 Route::post('/registro-usuarios', [UsuarioController::class , 'store'])->name('usuarios.store_publico');
+Route::post('/logout', [AuthController::class , 'logout'])->name('logout');
 
-// Logout
-Route::post('/logout', [UsuarioController::class , 'logout'])->name('logout');
-
-// --- RUTAS PROTEGIDAS (Requieren autenticación) ---
+// --- RUTAS PROTEGIDAS ---
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -39,7 +35,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
         )->name('dashboard');
 
-        // Gestión interna de usuarios
+        Route::post('/actividades/{id}/inscribir', [InscripcionesController::class , 'inscribir'])
+            ->name('actividades.inscribir');
+
+        Route::resource('actividades', ActividadesController::class)->parameters([
+            'actividades' => 'actividad'
+        ]);
+
         Route::resource('usuarios', UsuarioController::class);
 
         Route::get('/profile', [ProfileController::class , 'edit'])->name('profile.edit');
