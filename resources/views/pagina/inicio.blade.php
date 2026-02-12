@@ -168,7 +168,7 @@
                     actSel = a;
                     document.getElementById('modal-body').innerHTML = `
             <h3 class="text-2xl font-black text-gray-800 uppercase">${a.nombre}</h3>
-            <p class="text-gray-400 font-bold mt-2"> <i class="fa-solid fa-location-dot text-[#bc6a50]"></i> ${a.lugar}</p>
+            <p class="text-gray-400 font-bold mt-2"> <i class="bi bi-geo-fill text-[#bc6a50]"></i> ${a.lugar}</p>
             <div class="mt-6 bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-200">
                 <p class="text-[#bc6a50] text-2xl font-black">${a.hora.substring(0, 5)}h</p>
             </div>

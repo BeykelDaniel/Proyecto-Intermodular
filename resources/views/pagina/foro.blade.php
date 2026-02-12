@@ -20,6 +20,8 @@
         </div>
     </div>
 </nav>
+<div class="container mt-10 bg-[#ebd08e] rounded-3xl p-8 shadow-xl border border-[#32424D]/10 max-w-6xl mx-auto">
 
+</div>
 
 @endsection

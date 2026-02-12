@@ -5,9 +5,10 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ActividadesController;
 use App\Http\Controllers\InscripcionesController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AlbumController; // Importado una sola vez arriba
 use Illuminate\Support\Facades\Route;
 
-// --- RUTAS PÚBLICAS ---
+// --- RUTAS PÚBLICAS (Vistas Estáticas) ---
 
 Route::get('/', function () {
     return view('pagina.inicio');
@@ -17,7 +18,6 @@ Route::get('/inicio', function () {
     return view('pagina.inicio');
 })->name('pagina.inicio');
 
-// AQUÍ ESTABA EL ERROR: He cambiado 'auth.login_usuarios' por 'pagina.login_usuarios'
 Route::get('/login-usuarios', function () {
     return view('pagina.login_usuarios');
 })->name('pagina.login_usuarios');
@@ -37,16 +37,22 @@ Route::get('/amigos', function () {
 Route::get('/foro', function () {
     return view('pagina.foro');
 })->name('pagina.foro');
-
-Route::get('/album', function () {
+Route::get('/album-publico', function () {
     return view('pagina.album');
 })->name('pagina.album');
+// --- RUTAS DEL ÁLBUM (Gestionadas por AlbumController) ---
+
+// Esta es la ruta que soluciona el error $items al pasar por el método index()
+Route::get('/album', [AlbumController::class , 'index'])->name('pagina.album');
+Route::post('/album/subir', [AlbumController::class , 'subir'])->name('album.subir');
+
+// --- AUTENTICACIÓN ---
 
 Route::post('/login-usuarios', [AuthController::class , 'authenticate'])->name('login.custom');
 Route::post('/registro-usuarios', [UsuarioController::class , 'store'])->name('usuarios.store_publico');
 Route::post('/logout', [AuthController::class , 'logout'])->name('logout');
 
-// --- RUTAS PROTEGIDAS ---
+// --- RUTAS PROTEGIDAS (Requieren Login) ---
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -55,6 +61,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
         )->name('dashboard');
 
+        // Actividades e Inscripciones
         Route::post('/actividades/{id}/inscribir', [InscripcionesController::class , 'inscribir'])
             ->name('actividades.inscribir');
 
@@ -62,8 +69,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'actividades' => 'actividad'
         ]);
 
+        // ADMINISTRACIÓN DEL ÁLBUM (Tabla de fotos)
+        Route::get('/admin/fotos', [AlbumController::class , 'indexAdmin'])->name('fotos.index');
+        Route::delete('/admin/fotos/{id}', [AlbumController::class , 'destroy'])->name('fotos.destroy');
+
+        // Gestión de Usuarios
         Route::resource('usuarios', UsuarioController::class);
 
+        // Perfil de Usuario
         Route::get('/profile', [ProfileController::class , 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class , 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class , 'destroy'])->name('profile.destroy');

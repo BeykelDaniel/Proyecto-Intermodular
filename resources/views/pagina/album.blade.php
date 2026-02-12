@@ -1,69 +1,126 @@
 @extends('layout')
 
-@section('title', 'Inicio')
-
 @section('contenido')
+<div class="container mt-10 bg-[#ebd08e] rounded-[40px] p-8 shadow-xl max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[300px]">
 
-<nav
-    class="bg-[#75bac3ff] shadow-md h-24 md:h-28 flex items-center relative border-b-2 border-[#32424D]/10 px-6 md:px-12">
-    <div class="w-full flex items-center justify-around">
-
-        <div class="shrink-0">
-            <a href="{{ route('pagina.foro') }}" class="block">
-                <p>Foro</p>
-            </a>
+        <!-- CUADRO PARA SUBIR -->
+        <div onclick="document.getElementById('modalSubir').classList.remove('hidden')"
+            class="group rounded-3xl bg-white/40 border-4 border-dashed border-[#bc6a50]/40 flex flex-col items-center justify-center cursor-pointer hover:bg-white transition-all">
+            <span class="text-5xl mb-2"><i class="bi bi-cloud-upload text-[#3b4d57]"></i></span>
+            <p class="text-[#3b4d57] font-black uppercase text-sm">Añadir Archivo</p>
         </div>
-        <div class="shrink-0">
-            <a href="{{ route('pagina.album') }}" class="block">
-                <p>Album</p>
-            </a>
-        </div>
-    </div>
-</nav>
-<div class="container mt-10 bg-[#ebd08e] rounded-3xl p-8 shadow-xl border border-[#32424D]/10 max-w-6xl mx-auto">
-    <!-- Grid con auto-rows para mantener consistencia -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[300px]">
 
-        <!-- ITEM GRANDE (Ocupa 2 columnas en desktop) -->
-        <div
-            class="lg:col-span-2 group relative overflow-hidden rounded-2xl bg-gray-100 shadow-sm transition-all hover:shadow-lg">
-            <img src="{{ asset('tu-foto-principal.jpg') }}"
-                class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
-            <div class="absolute bottom-0 left-0 p-4 bg-gradient-to-t from-black/60 to-transparent w-full">
-                <p class="text-white font-bold">Destacado</p>
+        <!-- LISTADO DE FOTOS Y VÍDEOS -->
+        @forelse($items as $item)
+        <div class="group relative overflow-hidden rounded-3xl bg-gray-100 shadow-md">
+            @if($item->tipo == 'foto')
+            <img src="{{ asset($item->url) }}"
+                class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+            @else
+            <video src="{{ asset($item->url) }}" class="w-full h-full object-cover" muted loop onmouseover="this.play()"
+                onmouseout="this.pause()"></video>
+            <div class="absolute top-4 right-4 bg-black/20 backdrop-blur-md p-2 rounded-full text-white text-xs">VÍDEO
             </div>
+            @endif
         </div>
-
-        <!-- ITEM NORMAL (Cuadrado) -->
-        <div class="group relative overflow-hidden rounded-2xl bg-gray-100 shadow-sm transition-all">
-            <img src="{{ asset('logo.png') }}"
-                class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500">
+        @empty
+        <div class="col-span-full text-center py-20">
+            <p class="text-[#bc6a50] text-lg text-5xl">No hay fotos ni vídeos.</p>
         </div>
-
-        <!-- ITEM VIDEO -->
-        <div class="group relative overflow-hidden rounded-2xl bg-black shadow-sm transition-all">
-            <video class="object-cover w-full h-full opacity-80 group-hover:opacity-100 transition-opacity" muted loop
-                onmouseover="this.play()" onmouseout="this.pause()">
-                <source src="video.mp4" type="video/mp4">
-            </video>
-            <div class="absolute top-3 right-3 bg-white/20 backdrop-blur-md p-1.5 rounded-full">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                        d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.333-5.89a1.5 1.5 0 000-2.538L6.3 2.841z">
-                    </path>
-                </svg>
-            </div>
-        </div>
-
-        <!-- Otro item normal -->
-        <div class="group relative overflow-hidden rounded-2xl bg-gray-100 shadow-sm transition-all">
-            <img src="{{ asset('logo.png') }}"
-                class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500">
-        </div>
-
+        @endforelse
     </div>
 </div>
 
+<!-- EL MODAL -->
+<div id="modalSubir"
+    class="fixed inset-0 bg-black/70 z-[1000] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-[40px] max-w-sm w-full p-8 shadow-2xl relative">
+        <div id="form-content">
+            <h3 class="text-2xl font-black text-gray-800 uppercase text-center mb-6">Subir Recuerdo</h3>
 
+            <label
+                class="block w-full h-56 border-4 border-dashed border-gray-100 rounded-[30px] relative overflow-hidden cursor-pointer bg-gray-50">
+                <input type="file" id="inputMedia" class="hidden" accept="image/*,video/*"
+                    onchange="previewMedia(event)">
+                <div id="placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-300">
+                    <span class="text-4xl"><i class="bi bi-camera text-[#3b4d57]"></i></span>
+                    <p class="text-[25px] font-bold mt-2 text-[#3b4d57]">FOTO O VÍDEO</p>
+                </div>
+                <img id="img-prev" class="absolute inset-0 w-full h-full object-cover hidden">
+                <video id="vid-prev" class="absolute inset-0 w-full h-full object-cover hidden" muted loop></video>
+            </label>
 
+            <button onclick="enviarArchivo()" id="btnSend"
+                class="w-full mt-8 py-4 bg-[#bc6a50] text-white rounded-2xl font-black uppercase hover:bg-[#8e4f3c] transition-all">
+                Publicar Ahora
+            </button>
+            <button onclick="document.getElementById('modalSubir').classList.add('hidden')"
+                class="w-full mt-2 text-gray-400 font-bold text-xs uppercase">Cancelar</button>
+        </div>
+
+        <div id="success-view" class="hidden text-center py-10">
+            <div class="text-6xl mb-4 animate-bounce">✅</div>
+            <h3 class="text-2xl font-black text-gray-800 uppercase">¡Publicado!</h3>
+            <button onclick="location.reload()"
+                class="mt-8 w-full py-4 bg-[#32424D] text-white rounded-2xl font-black uppercase">Actualizar
+                Álbum</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewMedia(event) {
+        const file = event.target.files[0];
+        const img = document.getElementById('img-prev');
+        const vid = document.getElementById('vid-prev');
+        const place = document.getElementById('placeholder');
+
+        if (!file) return;
+
+        const url = URL.createObjectURL(file);
+        place.classList.add('hidden');
+
+        if (file.type.includes('video')) {
+            img.classList.add('hidden');
+            vid.src = url;
+            vid.classList.remove('hidden');
+            vid.play();
+        } else {
+            vid.classList.add('hidden');
+            img.src = url;
+            img.classList.remove('hidden');
+        }
+    }
+
+    function enviarArchivo() {
+        const fileInput = document.getElementById('inputMedia');
+        const btn = document.getElementById('btnSend');
+        if (fileInput.files.length === 0) return alert("Selecciona un archivo primero");
+
+        btn.disabled = true;
+        btn.innerText = "SUBIENDO...";
+
+        const formData = new FormData();
+        formData.append('archivo', fileInput.files[0]);
+        formData.append('_token', '{{ csrf_token() }}');
+
+        fetch("{{ route('album.subir') }}", {
+            method: 'POST',
+            body: formData
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('form-content').classList.add('hidden');
+                    document.getElementById('success-view').classList.remove('hidden');
+                }
+            })
+            .catch(() => {
+                alert("Error al subir el archivo");
+                btn.disabled = false;
+                btn.innerText = "Publicar Ahora";
+            });
+    }
+</script>
 @endsection
