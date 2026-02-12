@@ -22,6 +22,19 @@ Route::get('/login-usuarios', function () {
     return view('pagina.login_usuarios');
 })->name('pagina.login_usuarios');
 
+Route::get('/comunidades', function () {
+    return view('pagina.comunidades');
+})->name('pagina.comunidades');
+
+Route::get('/nosotros', function () {
+    return view('pagina.nosotros');
+})->name('pagina.nosotros');
+
+Route::get('/amigos', function () {
+    return view('pagina.amigos');
+})->name('pagina.amigos');
+
+
 Route::post('/login-usuarios', [AuthController::class , 'authenticate'])->name('login.custom');
 Route::post('/registro-usuarios', [UsuarioController::class , 'store'])->name('usuarios.store_publico');
 Route::post('/logout', [AuthController::class , 'logout'])->name('logout');

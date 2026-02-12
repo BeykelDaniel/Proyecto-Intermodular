@@ -87,9 +87,9 @@
         </button>
 
         <ul id="nav-menu" class="flex flex-row items-center gap-x-6 md:gap-x-10 lg:gap-x-14 font-bold">
-            <li><a href="#"
+            <li><a href="{{ route('pagina.amigos') }}"
                     class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors"><i
-                        class="fa-solid fa-users"></i> Mis Amigos</a>
+                        class="bi bi-people-fill"></i> <br> Mis Amigos</a>
             </li>
             <li class="relative dropdown-container" x-data="{ dropdown: false }">
                 <button @click="dropdown = !dropdown; if(dropdown) setTimeout(() => window.fpInstancia.redraw(), 50)"
@@ -115,10 +115,10 @@
                 </div>
             </li>
 
-            <li><a href="#"
+            <li><a href="{{ route('pagina.comunidades') }}"
                     class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors">Comunidades</a>
             </li>
-            <li><a href="#"
+            <li><a href="{{ route('pagina.nosotros') }}"
                     class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors">Nosotros</a>
             </li>
 

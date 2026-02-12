@@ -62,10 +62,16 @@
 
     <div class="w-full max-w-[1100px] bg-white rounded-xl p-6 shadow-sm">
         <h4 class="m-0 mb-4 text-gray-800 text-xl font-bold border-b border-gray-100 pb-3 uppercase"><i
-                class="fa-solid fa-calendar text-[#bc6a50]"></i> Próximas Actividades</h4>
+                class="bi bi-calendar-fill text-[#bc6a50]"></i> Próximas Actividades</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @php $misIds = auth()->check() ? auth()->user()->actividades->pluck('id')->toArray() : []; @endphp
             @foreach(\App\Models\Actividades::orderBy('fecha', 'asc')->get() as $a)
+            @if($a->cupos == 0)
+            @php $a->hidden = true; @endphp
+            @endif
+            @if($a->hidden)
+            @continue
+            @endif
             <div class="p-4 rounded-xl border border-gray-100 flex flex-col hover:border-[#82aeb4] transition-all">
                 <div class="flex justify-between items-start mb-2">
                     <span class="font-black text-gray-800 text-lg uppercase">{{ $a->nombre }}</span>
@@ -73,7 +79,7 @@
                 </div>
                 <div class="flex flex-wrap items-center gap-x-3 text-xs font-bold mb-4 uppercase tracking-wide">
                     <span class="text-[#3b4d57] font-bold text-sm">
-                        <i class="fa-solid fa-location-dot text-[#bc6a50]"></i> {{ $a->lugar }}</span>
+                        <i class="bi bi-geo-fill text-[#bc6a50]"></i> {{ $a->lugar }}</span>
                     <span class="text-[#3b4d57] font-bold text-sm">|</span>
                     <span class="text-[#3b4d57] font-bold text-sm"> {{ \Carbon\Carbon::parse($a->fecha)->format('d/m/Y')
                         }}</span>
@@ -95,65 +101,69 @@
             </div>
             @endforeach
         </div>
-    </div>
-</div>
+        <br>
+        <div class="w-full max-w-[1100px] bg-white rounded-xl p-6 shadow-sm">
+            <h4 class="m-0 mb-4 text-gray-800 text-xl font-bold border-b border-gray-100 pb-3 uppercase"><i
+                    class="bi bi-images text-[#bc6a50]"></i> Mis Álbumes</h4>
 
-<div id="modalActividad"
-    class="fixed inset-0 bg-black/60 z-[999] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-[30px] max-w-sm w-full p-8 shadow-2xl overflow-hidden">
-        <div id="modal-form">
-            <div id="modal-body" class="text-center"></div>
-            <button id="confirmarInscripcion"
-                class="w-full mt-8 py-4 bg-[#bc6a50] text-white rounded-2xl font-black uppercase tracking-widest hover:bg-[#8e4f3c] transition-all">Confirmar
-                Inscripción</button>
-            <button onclick="cerrarModal()"
-                class="w-full mt-2 py-2 text-gray-400 font-bold uppercase text-xs">Cancelar</button>
         </div>
-        <div id="modal-exito" class="hidden text-center py-6">
-            <div
-                class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                </svg>
+        <div id="modalActividad"
+            class="fixed inset-0 bg-black/60 z-[999] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white rounded-[30px] max-w-sm w-full p-8 shadow-2xl overflow-hidden">
+                <div id="modal-form">
+                    <div id="modal-body" class="text-center"></div>
+                    <button id="confirmarInscripcion"
+                        class="w-full mt-8 py-4 bg-[#bc6a50] text-white rounded-2xl font-black uppercase tracking-widest hover:bg-[#8e4f3c] transition-all">Confirmar
+                        Inscripción</button>
+                    <button onclick="cerrarModal()"
+                        class="w-full mt-2 py-2 text-gray-400 font-bold uppercase text-xs">Cancelar</button>
+                </div>
+                <div id="modal-exito" class="hidden text-center py-6">
+                    <div
+                        class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-gray-800 uppercase">¡Todo listo!</h3>
+                    <p id="exito-msg" class="text-gray-500 text-sm mt-2"></p>
+                    <button onclick="cerrarModal()"
+                        class="mt-8 w-full py-4 bg-[#32424D] text-white rounded-2xl font-black uppercase">Cerrar</button>
+                </div>
             </div>
-            <h3 class="text-2xl font-black text-gray-800 uppercase">¡Todo listo!</h3>
-            <p id="exito-msg" class="text-gray-500 text-sm mt-2"></p>
-            <button onclick="cerrarModal()"
-                class="mt-8 w-full py-4 bg-[#32424D] text-white rounded-2xl font-black uppercase">Cerrar</button>
         </div>
-    </div>
-</div>
 
-<script>
-    let actSel = null;
-    function abrirModal(a) {
-        actSel = a;
-        document.getElementById('modal-body').innerHTML = `
+        <script>
+            let actSel = null;
+            function abrirModal(a) {
+                actSel = a;
+                document.getElementById('modal-body').innerHTML = `
             <h3 class="text-2xl font-black text-gray-800 uppercase">${a.nombre}</h3>
             <p class="text-gray-400 font-bold mt-2"> <i class="fa-solid fa-location-dot text-[#bc6a50]"></i> ${a.lugar}</p>
             <div class="mt-6 bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-200">
                 <p class="text-[#bc6a50] text-2xl font-black">${a.hora.substring(0, 5)}h</p>
             </div>
         `;
-        document.getElementById('modal-form').classList.remove('hidden');
-        document.getElementById('modal-exito').classList.add('hidden');
-        document.getElementById('modalActividad').classList.remove('hidden');
-    }
-    function cerrarModal() { document.getElementById('modalActividad').classList.add('hidden'); }
+                document.getElementById('modal-form').classList.remove('hidden');
+                document.getElementById('modal-exito').classList.add('hidden');
+                document.getElementById('modalActividad').classList.remove('hidden');
+            }
+            function cerrarModal() { document.getElementById('modalActividad').classList.add('hidden'); }
 
-    document.getElementById('confirmarInscripcion').onclick = function () {
-        this.disabled = true; this.innerText = "PROCESANDO...";
-        fetch(`/actividades/${actSel.id}/inscribir`, { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } })
-            .then(r => r.json()).then(data => {
-                if (data.success) {
-                    window.dispatchEvent(new CustomEvent('usuarioInscrito', { detail: { nombre: actSel.nombre, fecha: actSel.fecha } }));
-                    const bLista = document.getElementById(`btn-${actSel.id}`);
-                    if (bLista) { bLista.disabled = true; bLista.innerText = "APUNTADO ✅"; bLista.className = "bg-gray-100 text-gray-400 px-4 py-1.5 rounded-lg font-black text-xs uppercase cursor-default"; }
-                    document.getElementById('exito-msg').innerText = `Te has inscrito en ${actSel.nombre}`;
-                    document.getElementById('modal-form').classList.add('hidden');
-                    document.getElementById('modal-exito').classList.remove('hidden');
-                }
-            });
-    };
-</script>
-@endsection
+            document.getElementById('confirmarInscripcion').onclick = function () {
+                this.disabled = true; this.innerText = "PROCESANDO...";
+                fetch(`/actividades/${actSel.id}/inscribir`, { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } })
+                    .then(r => r.json()).then(data => {
+                        if (data.success) {
+                            window.dispatchEvent(new CustomEvent('usuarioInscrito', { detail: { nombre: actSel.nombre, fecha: actSel.fecha } }));
+                            const bLista = document.getElementById(`btn-${actSel.id}`);
+                            if (bLista) { bLista.disabled = true; bLista.innerText = "¡Apuntado!"; bLista.className = "bg-gray-100 text-gray-400 px-4 py-1.5 rounded-lg font-black text-xs uppercase cursor-default"; }
+                            document.getElementById('exito-msg').innerText = `Te has inscrito en ${actSel.nombre}`;
+                            document.getElementById('modal-form').classList.add('hidden');
+                            document.getElementById('modal-exito').classList.remove('hidden');
+                        }
+                    });
+            };
+        </script>
+        @endsection
