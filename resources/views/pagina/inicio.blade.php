@@ -52,7 +52,9 @@
                         <span class="text-lg">👤</span> {{ $u->name }}
                     </li>
                     @empty
+                    if (User::onclick == $u->name) {
                     <li class="text-gray-400 italic">No hay otros usuarios disponibles</li>
+                    }
                     @endforelse
 
                 </ul>
@@ -132,38 +134,85 @@
                         class="mt-8 w-full py-4 bg-[#32424D] text-white rounded-2xl font-black uppercase">Cerrar</button>
                 </div>
             </div>
-        </div>
+            <div id="ModalAñadirAmigo"
+                class="fixed inset-0 bg-black/60 z-[999] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+                <div class="bg-white rounded-[30px] max-w-sm w-full p-8 shadow-2xl overflow-hidden">
+                    <div id="modal-form">
+                        <div id="modal-body" class="text-center"></div>
+                        <button id="confirmarAñadirAmigo"
+                            class="w-full mt-8 py-4 bg-[#bc6a50] text-white rounded-2xl font-black uppercase tracking-widest hover:bg-[#8e4f3c] transition-all">Añadir
+                            Amigo</button>
+                        <button onclick="cerrarModal()"
+                            class="w-full mt-2 py-2 text-gray-400 font-bold uppercase text-xs">Cancelar</button>
+                    </div>
+                    <div id="modal-exito" class="hidden text-center py-6">
+                        <div
+                            class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                    d="M5 13l4 4L19 7">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-black text-gray-800 uppercase">¡Todo listo!</h3>
+                        <p id="exito-msg" class="text-gray-500 text-sm mt-2"></p>
+                        <button onclick="cerrarModal()"
+                            class="mt-8 w-full py-4 bg-[#32424D] text-white rounded-2xl font-black uppercase">Cerrar</button>
+                    </div>
+                </div>
+            </div>
 
-        <script>
-            let actSel = null;
-            function abrirModal(a) {
-                actSel = a;
-                document.getElementById('modal-body').innerHTML = `
+            <script>
+                let actSel = null;
+                function abrirModal(a) {
+                    actSel = a;
+                    document.getElementById('modal-body').innerHTML = `
             <h3 class="text-2xl font-black text-gray-800 uppercase">${a.nombre}</h3>
             <p class="text-gray-400 font-bold mt-2"> <i class="fa-solid fa-location-dot text-[#bc6a50]"></i> ${a.lugar}</p>
             <div class="mt-6 bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-200">
                 <p class="text-[#bc6a50] text-2xl font-black">${a.hora.substring(0, 5)}h</p>
             </div>
         `;
-                document.getElementById('modal-form').classList.remove('hidden');
-                document.getElementById('modal-exito').classList.add('hidden');
-                document.getElementById('modalActividad').classList.remove('hidden');
-            }
-            function cerrarModal() { document.getElementById('modalActividad').classList.add('hidden'); }
+                    document.getElementById('modal-form').classList.remove('hidden');
+                    document.getElementById('modal-exito').classList.add('hidden');
+                    document.getElementById('modalActividad').classList.remove('hidden');
+                }
+                function cerrarModal() { document.getElementById('modalActividad').classList.add('hidden'); }
 
-            document.getElementById('confirmarInscripcion').onclick = function () {
-                this.disabled = true; this.innerText = "PROCESANDO...";
-                fetch(`/actividades/${actSel.id}/inscribir`, { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } })
-                    .then(r => r.json()).then(data => {
-                        if (data.success) {
-                            window.dispatchEvent(new CustomEvent('usuarioInscrito', { detail: { nombre: actSel.nombre, fecha: actSel.fecha } }));
-                            const bLista = document.getElementById(`btn-${actSel.id}`);
-                            if (bLista) { bLista.disabled = true; bLista.innerText = "¡Apuntado!"; bLista.className = "bg-gray-100 text-gray-400 px-4 py-1.5 rounded-lg font-black text-xs uppercase cursor-default"; }
-                            document.getElementById('exito-msg').innerText = `Te has inscrito en ${actSel.nombre}`;
-                            document.getElementById('modal-form').classList.add('hidden');
-                            document.getElementById('modal-exito').classList.remove('hidden');
-                        }
-                    });
-            };
-        </script>
-        @endsection
+                document.getElementById('confirmarInscripcion').onclick = function () {
+                    this.disabled = true; this.innerText = "PROCESANDO...";
+                    fetch(`/actividades/${actSel.id}/inscribir`, { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } })
+                        .then(r => r.json()).then(data => {
+                            if (data.success) {
+                                window.dispatchEvent(new CustomEvent('usuarioInscrito', { detail: { nombre: actSel.nombre, fecha: actSel.fecha } }));
+                                const bLista = document.getElementById(`btn-${actSel.id}`);
+                                if (bLista) { bLista.disabled = true; bLista.innerText = "¡Apuntado!"; bLista.className = "bg-gray-100 text-gray-400 px-4 py-1.5 rounded-lg font-black text-xs uppercase cursor-default"; }
+                                document.getElementById('exito-msg').innerText = `Te has inscrito en ${actSel.nombre}`;
+                                document.getElementById('modal-form').classList.add('hidden');
+                                document.getElementById('modal-exito').classList.remove('hidden');
+                            }
+                        });
+                };
+                function abrirModalAñadirAmigo() {
+                    document.getElementById('ModalAñadirAmigo').classList.remove('hidden');
+                }
+                function cerrarModalAñadirAmigo() {
+                    document.getElementById('ModalAñadirAmigo').classList.add('hidden');
+                }
+                document.getElementById('confirmarAñadirAmigo').onclick = function () {
+                    this.disabled = true; this.innerText = "AÑADIENDO...";
+                    fetch(`/amigos/${amigoSel.id}/añadir`, { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } })
+                        .then(r => r.json()).then(data => {
+                            if (data.success) {
+                                window.dispatchEvent(new CustomEvent('amigoAñadido', { detail: { nombre: amigoSel.nombre, fecha: amigoSel.fecha } }));
+                                const bLista = document.getElementById(`btn-${amigoSel.id}`);
+                                if (bLista) { bLista.disabled = true; bLista.innerText = "¡Apuntado!"; bLista.className = "bg-gray-100 text-gray-400 px-4 py-1.5 rounded-lg font-black text-xs uppercase cursor-default"; }
+                                document.getElementById('exito-msg').innerText = `Te has inscrito en ${amigoSel.nombre}`;
+                                document.getElementById('modal-form').classList.add('hidden');
+                                document.getElementById('modal-exito').classList.remove('hidden');
+                            }
+                        });
+                };
+
+            </script>
+            @endsection

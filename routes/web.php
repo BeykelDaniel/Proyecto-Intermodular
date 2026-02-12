@@ -34,6 +34,13 @@ Route::get('/amigos', function () {
     return view('pagina.amigos');
 })->name('pagina.amigos');
 
+Route::get('/foro', function () {
+    return view('pagina.foro');
+})->name('pagina.foro');
+
+Route::get('/album', function () {
+    return view('pagina.album');
+})->name('pagina.album');
 
 Route::post('/login-usuarios', [AuthController::class , 'authenticate'])->name('login.custom');
 Route::post('/registro-usuarios', [UsuarioController::class , 'store'])->name('usuarios.store_publico');
