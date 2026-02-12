@@ -5,18 +5,20 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ActividadesController;
 use App\Http\Controllers\InscripcionesController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AlbumController; // Importado una sola vez arriba
+use App\Http\Controllers\AlbumController;
 use Illuminate\Support\Facades\Route;
 
-// --- RUTAS PÚBLICAS (Vistas Estáticas) ---
+/*
+ |--------------------------------------------------------------------------
+ | RUTAS PÚBLICAS (Conectadas al Controlador para enviar $actividades)
+ |--------------------------------------------------------------------------
+ */
 
-Route::get('/', function () {
-    return view('pagina.inicio');
-});
+// ESTA ES LA RUTA PRINCIPAL (La que soluciona el error Undefined variable)
+Route::get('/', [ActividadesController::class , 'index'])->name('pagina.inicio');
 
-Route::get('/inicio', function () {
-    return view('pagina.inicio');
-})->name('pagina.inicio');
+// Alias para /inicio
+Route::get('/inicio', [ActividadesController::class , 'index'])->name('inicio_alias');
 
 Route::get('/login-usuarios', function () {
     return view('pagina.login_usuarios');
@@ -37,23 +39,25 @@ Route::get('/amigos', function () {
 Route::get('/foro', function () {
     return view('pagina.foro');
 })->name('pagina.foro');
-Route::get('/album-publico', function () {
-    return view('pagina.album');
-})->name('pagina.album');
-// --- RUTAS DEL ÁLBUM (Gestionadas por AlbumController) ---
 
-// Esta es la ruta que soluciona el error $items al pasar por el método index()
+// --- RUTAS DEL ÁLBUM ---
 Route::get('/album', [AlbumController::class , 'index'])->name('pagina.album');
 Route::post('/album/subir', [AlbumController::class , 'subir'])->name('album.subir');
 
-// --- AUTENTICACIÓN ---
-
+/*
+ |--------------------------------------------------------------------------
+ | AUTENTICACIÓN
+ |--------------------------------------------------------------------------
+ */
 Route::post('/login-usuarios', [AuthController::class , 'authenticate'])->name('login.custom');
 Route::post('/registro-usuarios', [UsuarioController::class , 'store'])->name('usuarios.store_publico');
 Route::post('/logout', [AuthController::class , 'logout'])->name('logout');
 
-// --- RUTAS PROTEGIDAS (Requieren Login) ---
-
+/*
+ |--------------------------------------------------------------------------
+ | RUTAS PROTEGIDAS (Requieren Login)
+ |--------------------------------------------------------------------------
+ */
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dashboard', function () {
@@ -61,15 +65,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
         )->name('dashboard');
 
-        // Actividades e Inscripciones
+        // Inscripciones a actividades
         Route::post('/actividades/{id}/inscribir', [InscripcionesController::class , 'inscribir'])
             ->name('actividades.inscribir');
 
+        // CRUD de Actividades (Admin)
         Route::resource('actividades', ActividadesController::class)->parameters([
             'actividades' => 'actividad'
         ]);
 
-        // ADMINISTRACIÓN DEL ÁLBUM (Tabla de fotos)
+        // Administración de Fotos
         Route::get('/admin/fotos', [AlbumController::class , 'indexAdmin'])->name('fotos.index');
         Route::delete('/admin/fotos/{id}', [AlbumController::class , 'destroy'])->name('fotos.destroy');
 

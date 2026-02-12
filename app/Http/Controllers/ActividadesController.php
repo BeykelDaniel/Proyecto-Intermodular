@@ -10,11 +10,22 @@ use Illuminate\Support\Facades\Auth;
 
 class ActividadesController extends Controller
 {
-    public function index()
+
+    public function index(Request $request)
     {
-        $actividades = Actividades::paginate(10);
-        return view('actividades.index', compact('actividades'));
-    }  
+        // 1. Traemos los datos paginados
+        $actividades = \App\Models\Actividades::orderBy('fecha', 'asc')->paginate(4);
+
+        // 2. Si es una petición del botón (AJAX), enviamos solo la lista
+        if ($request->ajax()) {
+            return view('actividades.partials.lista', compact('actividades'))->render();
+        }
+
+        // 3. Si es la carga normal, enviamos toda la página
+        return view('pagina.inicio', compact('actividades'));
+    }
+
+
 
     public function create()
     {
@@ -35,7 +46,7 @@ class ActividadesController extends Controller
 
         Actividades::create($validated);
         return redirect()->route('actividades.index')->with('success', 'Actividad creada correctamente.');
-    }   
+    }
 
     public function show(Actividades $actividad)
     {
