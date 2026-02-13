@@ -27,22 +27,26 @@
                 <img src="{{ asset('banner.png') }}" alt="banner" class="w-full h-auto object-contain block rounded-lg">
             </div>
         </div>
-
         <div class="w-full md:w-[240px] bg-white rounded-xl p-4 shadow-sm flex flex-col">
-            <h4 class="m-0 mb-3 text-[#bc6a50] text-lg font-semibold border-b border-gray-100 pb-2">
-                Añadir Amigos
-            </h4>
+            <div class="flex justify-between items-center mb-3 border-b border-gray-100 pb-2">
+                <h4 class="m-0 text-[#bc6a50] text-lg font-semibold">
+                    Añadir Amigos
+                </h4>
+
+            </div>
             <div class="flex-1 overflow-y-auto pr-1 custom-scrollbar">
                 <ul class="p-0 m-0 list-none text-[#3b4d57] text-sm">
                     @php
                     $usuarios_db = \App\Models\User::where('email', '!=', 'cabrerajosedaniel89@gmail.com')
+                    ->latest()
                     ->take(15)
                     ->get();
                     @endphp
 
                     @forelse($usuarios_db as $u)
                     {{-- Se repite por cada amigo encontrado --}}
-                    <li onclick="abrirModalAñadirAmigo({{ $u->toJson() }})" class="...">
+                    <li onclick="abrirModalAñadirAmigo({{ $u->toJson() }})"
+                        class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors mb-1">
                         <span class="text-lg">👤</span> {{ $u->name }}
                     </li>
                     @empty
@@ -52,15 +56,27 @@
                 </ul>
             </div>
         </div>
+
+
     </div>
 
     <div class="w-full max-w-[1100px] bg-white rounded-xl p-6 shadow-sm">
         <h4 class="m-0 mb-4 text-gray-800 text-xl font-bold border-b border-gray-100 pb-3 uppercase">
-            <i class="bi bi-calendar-fill text-[#bc6a50]"></i> Próximas Actividades
+            <i class="bi bi-calendar-fill bg-[#bc6a50] text-white rounded-full p-2"></i> Próximas Actividades
         </h4>
-
         <div id="contenedor-actividades" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @include('actividades.partials.lista')
+
+            {{-- BOTÓN PEQUEÑO ESTILO TARJETA --}}
+            @if(Auth::user()->email == 'cabrerajosedaniel89@gmail.com')
+            <div class="flex items-center justify-center">
+                <button type="button" onclick="window.location.href='{{ route('actividades.create') }}'"
+                    class="group flex flex-col items-center justify-center w-32 h-32 bg-indigo-50 border-2 border-solid border-indigo-600 rounded-2xl hover:bg-indigo-100 hover:border-indigo-400 transition-all duration-300">
+                    <i class="bi bi-plus-lg text-2xl text-indigo-600 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-lg font-black uppercase text-indigo-600 mt-2 tracking-widest">Crear</span>
+                </button>
+            </div>
+            @endif
         </div>
 
         @if($actividades->hasMorePages())
@@ -73,6 +89,7 @@
                 actividades
                 por ver
             </p>
+
             <button id="btn-cargar-mas" data-pagina="2" data-total="{{ $actividades->total() }}"
                 data-perpage="{{ $actividades->perPage() }}"
                 class="bg-[#ecb577] text-white px-8 py-2.5 rounded-lg font-black text-xs uppercase hover:bg-[#d9a466] transition-all shadow-md">
@@ -83,7 +100,7 @@
     </div>
     <div class="w-full max-w-[1100px] bg-white rounded-xl p-6 shadow-sm">
         <h4 class="m-0 mb-4 text-gray-800 text-xl font-bold border-b border-gray-100 pb-3 uppercase">
-            <i class="bi bi-images text-[#bc6a50]"></i> Mis Álbumes
+            <i class="bi bi-images bg-[#bc6a50] text-white rounded-full p-2"></i> Mis Álbumes
         </h4>
     </div>
 </div>

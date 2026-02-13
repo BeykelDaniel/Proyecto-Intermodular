@@ -3,50 +3,56 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Actividades;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Actividades; // Asegúrate de que el modelo se llame así
 use Illuminate\Support\Facades\Auth;
 
 class ActividadesController extends Controller
 {
-
+    /**
+     * Vista de administración (Tabla de gestión)
+     */
     public function index(Request $request)
     {
-        // Usamos el modelo Actividades (en plural como lo tienes definido)
         $actividades = Actividades::orderBy('fecha', 'asc')->paginate(10);
 
-        // Si la petición es AJAX (para el botón de cargar más en la web pública)
         if ($request->ajax()) {
             return view('actividades.partials.lista', compact('actividades'))->render();
         }
 
-        // Retornamos la vista de administración (donde está la tabla)
         return view('actividades.index', compact('actividades'));
     }
 
+    /**
+     * Vista principal del usuario (Inicio)
+     */
     public function indexPrincipal(Request $request)
     {
-        // 1. Traemos los datos paginados
+        // Traemos las actividades ordenadas por fecha próxima
         $actividades = Actividades::orderBy('fecha', 'asc')->paginate(4);
 
-        // 2. Si es una petición del botón (AJAX), enviamos solo la lista
         if ($request->ajax()) {
+            // Esto sirve para el botón "Cargar más" de tu vista de inicio
             return view('actividades.partials.lista', compact('actividades'))->render();
         }
 
-        // 3. Si es la carga normal, enviamos toda la página
         return view('pagina.inicio', compact('actividades'));
     }
 
-
-
-
+    /**
+     * Mostrar formulario de creación
+     */
     public function create()
     {
-        return view('actividades.create', ['actividad' => new Actividades(), 'oper' => 'create']);
+        // Pasamos un objeto vacío y la operación para reutilizar vistas si fuera necesario
+        return view('actividades.create', [
+            'actividad' => new Actividades(),
+            'oper' => 'create'
+        ]);
     }
 
+    /**
+     * Guardar nueva actividad y bloquear campos mediante sesión
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -59,20 +65,37 @@ class ActividadesController extends Controller
             'cupos' => 'required|numeric',
         ]);
 
+        // Creamos el registro
         Actividades::create($validated);
-        return redirect()->route('actividades.index')->with('success', 'Actividad creada correctamente.');
+
+        /**
+         * REDIRECCIÓN CLAVE:
+         * Al usar back(), regresamos a la vista 'create'.
+         * El "with('success', ...)" activará el @if(session('success')) en tu Blade,
+         * ocultando el formulario y mostrando el botón de volver al inicio.
+         */
+        return back()->with('success', '¡La actividad se ha creado con éxito!');
     }
 
+    /**
+     * Mostrar una actividad específica
+     */
     public function show(Actividades $actividad)
     {
         return view('actividades.create', ['actividad' => $actividad, 'oper' => 'show']);
     }
 
+    /**
+     * Formulario de edición
+     */
     public function edit(Actividades $actividad)
     {
         return view('actividades.create', ['actividad' => $actividad, 'oper' => 'edit']);
     }
 
+    /**
+     * Actualizar actividad
+     */
     public function update(Request $request, Actividades $actividad)
     {
         $validated = $request->validate([
@@ -86,12 +109,29 @@ class ActividadesController extends Controller
         ]);
 
         $actividad->update($validated);
+
         return redirect()->route('actividades.index')->with('success', 'Actividad actualizada correctamente.');
     }
 
+    /**
+     * Eliminar actividad
+     */
     public function destroy(Actividades $actividad)
     {
         $actividad->delete();
         return redirect()->route('actividades.index')->with('success', 'Actividad eliminada correctamente.');
+    }
+
+    /**
+     * Método para inscribir usuario (AJAX que usas en tu vista de inicio)
+     */
+    public function inscribir($id)
+    {
+        // Aquí iría tu lógica de inscripción (ej: tabla pivote user_actividad)
+        // Ejemplo rápido:
+        return response()->json([
+            'success' => true,
+            'message' => 'Inscripción completada'
+        ]);
     }
 }
