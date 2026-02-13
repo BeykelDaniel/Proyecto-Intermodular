@@ -41,11 +41,12 @@
                     @endphp
 
                     @forelse($usuarios_db as $u)
-                    <li onclick="abrirModalAñadirAmigo({{ $u->toJson() }})"
-                        class="mb-3 flex items-center gap-2 border-b border-gray-50 pb-1 hover:bg-gray-50 transition-colors cursor-pointer p-1 rounded-md">
+                    {{-- Se repite por cada amigo encontrado --}}
+                    <li onclick="abrirModalAñadirAmigo({{ $u->toJson() }})" class="...">
                         <span class="text-lg">👤</span> {{ $u->name }}
                     </li>
                     @empty
+                    {{-- Esto sale solo si la base de datos no devuelve usuarios --}}
                     <li class="text-gray-400 italic p-2">No hay otros usuarios disponibles</li>
                     @endforelse
                 </ul>
