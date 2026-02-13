@@ -6,19 +6,16 @@ use App\Http\Controllers\ActividadesController;
 use App\Http\Controllers\InscripcionesController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AlbumController;
+use App\Http\Controllers\AmigosController; // Asegúrate de tener este controlador creado
 use Illuminate\Support\Facades\Route;
 
 /*
  |--------------------------------------------------------------------------
- | RUTAS PÚBLICAS (Conectadas al Controlador para enviar $actividades)
+ | RUTAS PÚBLICAS
  |--------------------------------------------------------------------------
  */
 
-// ESTA ES LA RUTA PRINCIPAL (La que soluciona el error Undefined variable)
-Route::get('/', [ActividadesController::class , 'index'])->name('pagina.inicio');
-
-// Alias para /inicio
-Route::get('/inicio', [ActividadesController::class , 'index'])->name('inicio_alias');
+Route::get('/', [ActividadesController::class , 'indexPrincipal'])->name('pagina.inicio');
 
 Route::get('/login-usuarios', function () {
     return view('pagina.login_usuarios');
@@ -64,6 +61,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return view('dashboard');
         }
         )->name('dashboard');
+
+        // --- SECCIÓN AMIGOS (Añadida aquí) ---
+        // Usamos 'anadir' para evitar errores de codificación con la 'ñ'
+        Route::post('/amigos/{id}/anadir', [AmigosController::class , 'store'])
+            ->name('amigos.anadir');
 
         // Inscripciones a actividades
         Route::post('/actividades/{id}/inscribir', [InscripcionesController::class , 'inscribir'])

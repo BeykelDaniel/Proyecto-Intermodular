@@ -13,8 +13,22 @@ class ActividadesController extends Controller
 
     public function index(Request $request)
     {
+        // Usamos el modelo Actividades (en plural como lo tienes definido)
+        $actividades = Actividades::orderBy('fecha', 'asc')->paginate(10);
+
+        // Si la petición es AJAX (para el botón de cargar más en la web pública)
+        if ($request->ajax()) {
+            return view('actividades.partials.lista', compact('actividades'))->render();
+        }
+
+        // Retornamos la vista de administración (donde está la tabla)
+        return view('actividades.index', compact('actividades'));
+    }
+
+    public function indexPrincipal(Request $request)
+    {
         // 1. Traemos los datos paginados
-        $actividades = \App\Models\Actividades::orderBy('fecha', 'asc')->paginate(4);
+        $actividades = Actividades::orderBy('fecha', 'asc')->paginate(4);
 
         // 2. Si es una petición del botón (AJAX), enviamos solo la lista
         if ($request->ajax()) {
@@ -24,6 +38,7 @@ class ActividadesController extends Controller
         // 3. Si es la carga normal, enviamos toda la página
         return view('pagina.inicio', compact('actividades'));
     }
+
 
 
 

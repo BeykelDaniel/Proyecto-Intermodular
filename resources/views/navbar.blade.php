@@ -45,7 +45,7 @@
             top: 100%;
             left: 0;
             width: 100%;
-            background-color: #ebd08e;
+            background-color: #F1E498;
             flex-direction: column;
             padding: 20px;
             gap: 15px;
@@ -70,7 +70,7 @@
 </style>
 
 <nav
-    class="bg-[#ebd08e] shadow-md h-24 md:h-28 flex items-center relative border-b-2 border-[#32424D]/10 px-6 md:px-12">
+    class="bg-[#E8D258] shadow-md h-24 md:h-28 flex items-center relative border-b-2 border-[#32424D]/10 px-6 md:px-12">
     <div class="w-full flex items-center justify-between">
 
         <div class="shrink-0">
@@ -88,12 +88,12 @@
 
         <ul id="nav-menu" class="flex flex-row items-center gap-x-6 md:gap-x-10 lg:gap-x-14 font-bold">
             <li><a href="{{ route('pagina.amigos') }}"
-                    class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors"><i
+                    class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#C2841D] transition-colors"><i
                         class="bi bi-people-fill"></i> <br> Mis Amigos</a>
             </li>
             <li class="relative dropdown-container" x-data="{ dropdown: false }">
                 <button @click="dropdown = !dropdown; if(dropdown) setTimeout(() => window.fpInstancia.redraw(), 50)"
-                    class="text-[#32424D] uppercase flex items-center whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors">
+                    class="text-[#32424D] uppercase flex items-center whitespace-nowrap text-xs md:text-base hover:text-[#C2841D] transition-colors">
                     Mis Actividades
                     <svg class="w-4 h-4 ms-2" :class="{'rotate-180': dropdown}" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -116,10 +116,10 @@
             </li>
 
             <li><a href="{{ route('pagina.comunidades') }}"
-                    class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors">Comunidades</a>
+                    class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#C2841D] transition-colors">Comunidades</a>
             </li>
             <li><a href="{{ route('pagina.nosotros') }}"
-                    class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors">Nosotros</a>
+                    class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#C2841D] transition-colors">Nosotros</a>
             </li>
 
 
@@ -134,7 +134,7 @@
             </li>
             @else
             <li><a href="{{ route('pagina.login_usuarios') }}"
-                    class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#f4f6f6] transition-colors"><i
+                    class="text-[#32424D] uppercase whitespace-nowrap text-xs md:text-base hover:text-[#C2841D] transition-colors"><i
                         class="fa-solid fa-user"></i> Entrar</a></li>
             @endauth
         </ul>

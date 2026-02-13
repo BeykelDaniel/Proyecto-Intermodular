@@ -18,7 +18,7 @@
         <span class="text-[#3b4d57] font-bold text-sm">{{ \Carbon\Carbon::parse($a->hora)->format('H:i') }}h</span>
     </div>
     <div class="mt-2 mb-2 flex justify-between items-center font-bold">
-        <span class="text-[10px] text-blue-500 font-bold uppercase">Cupos: {{ $a->cupos }}</span>
+        <span class="text-[15px] text-blue-500 font-bold uppercase">Cupos: {{ $a->cupos }}</span>
         @if(in_array($a->id, $misIds))
         <button class="bg-gray-300 text-black px-4 py-1.5 rounded-lg font-black text-xs uppercase cursor-not-allowed"
             disabled>¡Apuntado!</button>

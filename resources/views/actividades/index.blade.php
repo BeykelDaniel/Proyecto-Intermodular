@@ -100,7 +100,8 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{{
                                         $actividad->nombre }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $actividad->descripcion }}
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{
+                                        $actividad->descripcion }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                         {{ $actividad->fecha ?

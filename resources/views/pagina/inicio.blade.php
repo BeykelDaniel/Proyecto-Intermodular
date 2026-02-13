@@ -3,7 +3,7 @@
 @section('title', 'Inicio')
 
 @section('contenido')
-<div class="bg-[#82aeb4] min-h-screen p-4 font-sans flex flex-col items-center gap-4">
+<div class="bg-[#C28AED] min-h-screen p-4 font-sans flex flex-col items-center gap-4 rounded-2xl">
 
     <div class="flex flex-col md:flex-row gap-4 w-full max-w-[1100px] h-auto md:h-[500px] items-stretch">
 
@@ -24,7 +24,7 @@
             </div>
 
             <div class="flex-grow rounded-xl overflow-hidden shadow-sm bg-white flex justify-center items-center p-2">
-                <img src="{{ asset('banner.png') }}" alt="banner" class="max-w-full max-h-full object-contain block">
+                <img src="{{ asset('banner.png') }}" alt="banner" class="w-full h-auto object-contain block rounded-lg">
             </div>
         </div>
 
@@ -41,7 +41,7 @@
                     @endphp
 
                     @forelse($usuarios_db as $u)
-                    <li onclick="abrirModalAñadirAmigo({{ json_encode(['id' => $u->id, 'name' => $u->name]) }})"
+                    <li onclick="abrirModalAñadirAmigo({{ $u->toJson() }})"
                         class="mb-3 flex items-center gap-2 border-b border-gray-50 pb-1 hover:bg-gray-50 transition-colors cursor-pointer p-1 rounded-md">
                         <span class="text-lg">👤</span> {{ $u->name }}
                     </li>
@@ -67,8 +67,10 @@
             @php
             $restantes = $actividades->total() - ($actividades->currentPage() * $actividades->perPage());
             @endphp
-            <p id="texto-restantes" class="text-gray-400 text-xs font-bold uppercase tracking-widest">
-                Quedan <span id="num-restantes">{{ $restantes > 0 ? $restantes : 0 }}</span> actividades por ver
+            <p id="texto-restantes" class="text-black text-s font-bold uppercase tracking-widest">
+                Quedan <span id="num-restantes" class=" text-[#1C31B5]">{{ $restantes > 0 ? $restantes : 0 }}</span>
+                actividades
+                por ver
             </p>
             <button id="btn-cargar-mas" data-pagina="2" data-total="{{ $actividades->total() }}"
                 data-perpage="{{ $actividades->perPage() }}"
@@ -78,7 +80,6 @@
         </div>
         @endif
     </div>
-
     <div class="w-full max-w-[1100px] bg-white rounded-xl p-6 shadow-sm">
         <h4 class="m-0 mb-4 text-gray-800 text-xl font-bold border-b border-gray-100 pb-3 uppercase">
             <i class="bi bi-images text-[#bc6a50]"></i> Mis Álbumes
@@ -86,6 +87,7 @@
     </div>
 </div>
 
+{{-- MODAL INSCRIPCIÓN ACTIVIDAD --}}
 <div id="modalActividad"
     class="fixed inset-0 bg-black/60 z-[999] hidden flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white rounded-[30px] max-w-sm w-full p-8 shadow-2xl">
@@ -113,13 +115,14 @@
     </div>
 </div>
 
+{{-- MODAL AÑADIR AMIGO --}}
 <div id="ModalAñadirAmigo"
     class="fixed inset-0 bg-black/60 z-[999] hidden flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white rounded-[30px] max-w-sm w-full p-8 shadow-2xl">
         <div id="amigo-form-content">
             <div id="modal-amigo-body" class="text-center"></div>
             <button id="confirmarAñadirAmigo"
-                class="w-full mt-8 py-4 bg-[#bc6a50] text-white rounded-2xl font-black uppercase tracking-widest hover:bg-[#8e4f3c] transition-all shadow-lg">
+                class="w-full mt-8 py-4 bg-[#B8A019] text-white rounded-2xl font-black uppercase tracking-widest hover:bg-[#907D14] transition-all shadow-lg">
                 Enviar Solicitud
             </button>
             <button onclick="cerrarModal('ModalAñadirAmigo')"
@@ -145,12 +148,24 @@
     let actSel = null;
     let amigoSel = null;
 
+    // --- UTILIDADES ---
+    function limpiarTexto(texto) {
+        return texto ? texto.trim().replace(/\s+/g, ' ') : "";
+    }
+
+    function mostrarFormulario(tipo) {
+        document.getElementById(`${tipo}-form-content`).classList.remove('hidden');
+        document.getElementById(`${tipo}-exito-content`).classList.add('hidden');
+    }
+
+    function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
+
     // --- LÓGICA DE ACTIVIDADES ---
     function abrirModal(a) {
         actSel = a;
         document.getElementById('modal-body').innerHTML = `
-            <h3 class="text-2xl font-black text-gray-800 uppercase">${a.nombre}</h3>
-            <p class="text-gray-400 font-bold mt-2"> <i class="bi bi-geo-fill text-[#bc6a50]"></i> ${a.lugar}</p>
+            <h3 class="text-2xl font-black text-gray-800 uppercase">${limpiarTexto(a.nombre)}</h3>
+            <p class="text-gray-400 font-bold mt-2"> <i class="bi bi-geo-fill text-[#bc6a50]"></i> ${limpiarTexto(a.lugar)}</p>
             <div class="mt-6 bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-200">
                 <p class="text-[#bc6a50] text-2xl font-black">${a.hora.substring(0, 5)}h</p>
             </div>`;
@@ -165,27 +180,44 @@
     // --- LÓGICA DE AMIGOS ---
     function abrirModalAñadirAmigo(u) {
         amigoSel = u;
+        const nombreLimpio = limpiarTexto(u.name);
+        const genero = u.genero || 'No especificado';
+        // Formateo de fecha para evitar los ceros del ISO
+        const fechaNac = u.fecha_nacimiento ? u.fecha_nacimiento.split('T')[0] : 'No disponible';
+        const icono = (genero.toLowerCase() === 'mujer') ? '👩' : '👨';
+
         document.getElementById('modal-amigo-body').innerHTML = `
-            <h3 class="text-2xl font-black text-gray-800 uppercase">${u.name}</h3>
-            <p class="text-gray-400 font-bold mt-2">¿Quieres añadir a esta persona a tu red de amigos?</p>`;
+            <div class="flex justify-center mb-4">
+                <div class="w-24 h-24 bg-gray-100 rounded-full border-4 border-white shadow-md flex items-center justify-center text-5xl shrink-0">
+                    ${icono}
+                </div>
+            </div>
+            <h3 class="text-2xl font-black text-gray-800 uppercase">${nombreLimpio}</h3>
+            <div class="grid grid-cols-2 gap-2 mt-4 bg-gray-50 p-3 rounded-2xl border border-gray-100 text-center">
+                <div>
+                    <p class="text-lg font-black text-[#3B51E0] uppercase">Género</p>
+                    <p class="text-xl font-bold text-[#8A63F6]">${genero}</p>
+                </div>
+                <div class="border-l border-gray-200">
+                    <p class="text-lg font-black text-[#3B51E0] uppercase">Nacimiento</p>
+                    <p class="text-xl font-bold text-[#8A63F6]">${fechaNac}</p>
+                </div>
+            </div>
+            <p class="text-black font-bold mt-6 text-lg">¿Quieres enviar una solicitud de amistad?</p>`;
+
         mostrarFormulario('amigo');
         document.getElementById('ModalAñadirAmigo').classList.remove('hidden');
     }
 
     document.getElementById('confirmarAñadirAmigo').onclick = function () {
-        ejecutarPost(`/amigos/${amigoSel.id}/añadir`, 'amigo', `Solicitud enviada a ${amigoSel.name}`);
+        ejecutarPost(`/amigos/${amigoSel.id}/anadir`, 'amigo', `Solicitud enviada a ${amigoSel.name}`);
     };
 
-    // --- FUNCIONES AUXILIARES ---
-    function mostrarFormulario(tipo) {
-        document.getElementById(`${tipo}-form-content`).classList.remove('hidden');
-        document.getElementById(`${tipo}-exito-content`).classList.add('hidden');
-    }
-
-    function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
-
+    // --- EJECUCIÓN POST AJAX ---
     function ejecutarPost(url, tipo, msgExito) {
         const btn = tipo === 'act' ? document.getElementById('confirmarInscripcion') : document.getElementById('confirmarAñadirAmigo');
+        const textoOriginal = btn.innerText;
+
         btn.disabled = true;
         btn.innerText = "PROCESANDO...";
 
@@ -200,23 +232,26 @@
                     document.getElementById(`${tipo}-form-content`).classList.add('hidden');
                     document.getElementById(`${tipo}-exito-content`).classList.remove('hidden');
 
-                    // Si es actividad, actualizar el botón de la lista principal
                     if (tipo === 'act') {
                         const bLista = document.getElementById(`btn-${actSel.id}`);
                         if (bLista) {
-                            bLista.disabled = true; bLista.innerText = "¡Apuntado!";
+                            bLista.disabled = true;
+                            bLista.innerText = "¡Apuntado!";
                             bLista.className = "bg-gray-100 text-gray-400 px-4 py-1.5 rounded-lg font-black text-xs uppercase cursor-default";
                         }
                     }
+                } else {
+                    alert(data.message || "Error al procesar la solicitud");
                 }
             })
+            .catch(err => console.error(err))
             .finally(() => {
                 btn.disabled = false;
-                btn.innerText = tipo === 'act' ? "Confirmar Inscripción" : "Enviar Solicitud";
+                btn.innerText = textoOriginal;
             });
     }
 
-    // --- LÓGICA DE CARGA INFINITA CON CONTADOR ---
+    // --- CARGA INFINITA ---
     $(document).ready(function () {
         $('#btn-cargar-mas').on('click', function () {
             let btn = $(this);
@@ -237,15 +272,11 @@
                         $('#wrapper-btn-cargar').html('<p class="text-gray-400 text-xs font-bold uppercase">No hay más actividades</p>');
                         return;
                     }
-
                     $("#contenedor-actividades").append(data);
-
-                    // Actualizar contador
                     let cargadas = pagina * perPage;
                     let quedan = total - cargadas;
-
                     if (quedan <= 0) {
-                        $('#wrapper-btn-cargar').html('<p class="text-gray-400 text-xs font-bold uppercase">¡Has visto todas las actividades!</p>');
+                        $('#wrapper-btn-cargar').html('<p class="text-gray-400 text-xs font-bold uppercase">¡Has visto todo!</p>');
                     } else {
                         $('#num-restantes').text(quedan);
                         btn.data('pagina', pagina + 1).text('Más Actividades').prop('disabled', false);
