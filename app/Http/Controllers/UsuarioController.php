@@ -36,6 +36,10 @@ class UsuarioController extends Controller
      */
     public function index()
     {
+        if (Auth::user()->email !== 'cabrerajosedaniel89@gmail.com') {
+            return redirect()->route('pagina.inicio')->with('error', 'No tienes permisos para acceder a la gestión de usuarios.');
+        }
+
         $usuarios = User::paginate(10);
         return view('usuarios.index', compact('usuarios'));
     }
@@ -156,6 +160,15 @@ class UsuarioController extends Controller
         $usuario->delete();
 
         return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado con éxito.');
+    }
+
+    /**
+     * Ver Perfil Público
+     */
+    public function verPerfil($id)
+    {
+        $usuario = User::findOrFail($id);
+        return view('pagina.perfil_ver', compact('usuario'));
     }
 
     /**

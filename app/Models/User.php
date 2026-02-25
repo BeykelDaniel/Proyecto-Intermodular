@@ -29,6 +29,8 @@ class User extends Authenticatable
         'genero',
         'numero_telefono',
         'perfil_foto',
+        'font_size',
+        'biografia',
     ];
 
     /**
@@ -55,9 +57,25 @@ class User extends Authenticatable
         ];
     }
 
+    // Amigos aceptados (bidireccional simulado)
     public function amigos()
     {
-        return $this->belongsToMany(User::class , 'amigos', 'user_id', 'amigo_id');
+        return $this->belongsToMany(User::class, 'amigos', 'user_id', 'amigo_id')
+                    ->wherePivot('status', 'aceptada');
+    }
+
+    // Solicitudes recibidas (pendientes)
+    public function friendRequestsReceived()
+    {
+        return $this->belongsToMany(User::class, 'amigos', 'amigo_id', 'user_id')
+                    ->wherePivot('status', 'pendiente');
+    }
+
+    // Solicitudes enviadas (pendientes)
+    public function friendRequestsSent()
+    {
+        return $this->belongsToMany(User::class, 'amigos', 'user_id', 'amigo_id')
+                    ->wherePivot('status', 'pendiente');
     }
 
     public function posts()

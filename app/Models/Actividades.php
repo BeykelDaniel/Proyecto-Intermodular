@@ -21,13 +21,20 @@ class Actividades extends Model
         'imagen',
     ];
 
-    public function posts()
+   public function posts()
     {
         return $this->hasMany(Post::class, 'actividades_id');
     }
 
+    /**
+     * CAMBIO AQUÍ: De hasMany a belongsToMany
+     */
+    /**
+     * Relación con la tabla 'media' (fotos y vídeos)
+     */
     public function media()
     {
-        return $this->hasMany(Foto::class, 'actividad_id');
+        return $this->hasMany(Media::class, 'actividad_id');
     }
+
 }

@@ -9,8 +9,19 @@ use Illuminate\Support\Facades\Auth;
 
 class ForoController extends Controller
 {
+    public function index()
+    {
+        $actividades = auth()->user()->actividades()->withCount('posts')->get();
+        return view('pagina.foro', compact('actividades'));
+    }
+
     public function show($id)
     {
+        $user = auth()->user();
+        if (!$user->actividades()->where('actividades_id', $id)->exists()) {
+            return redirect()->route('pagina.foro')->with('error', 'No estás inscrito en esta actividad.');
+        }
+        
         $actividad = Actividades::with('posts.user')->findOrFail($id);
         return view('pagina.foro', compact('actividad'));
     }
@@ -28,5 +39,15 @@ class ForoController extends Controller
         ]);
 
         return back()->with('success', 'Mensaje publicado en el foro.');
+    }
+    public function getNewMessages(Request $request, $id)
+    {
+        $lastId = $request->query('last_id', 0);
+        $posts = Post::with('user')
+            ->where('actividades_id', $id)
+            ->where('id', '>', $lastId)
+            ->get();
+
+        return response()->json($posts);
     }
 }

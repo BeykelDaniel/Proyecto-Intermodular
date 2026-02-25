@@ -1,3 +1,112 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    --app-font-size: 18px;
+    /* Default */
+}
+
+body {
+    font-size: var(--app-font-size) !important;
+    @apply bg-gray-100 antialiased font-sans;
+}
+
+/* Senior Accessibility Font Scaling */
+p,
+span,
+a,
+button,
+input,
+select,
+textarea,
+label {
+    font-size: var(--app-font-size) !important;
+}
+
+h1 {
+    font-size: calc(var(--app-font-size) * 2) !important;
+}
+
+h2 {
+    font-size: calc(var(--app-font-size) * 1.5) !important;
+}
+
+h3 {
+    font-size: calc(var(--app-font-size) * 1.25) !important;
+}
+
+/* Transitions for smooth UX */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+[x-cloak],
+[v-cloak],
+[x-show] {
+    display: none !important;
+}
+
+/* Flatpickr Senior Friendly Customization */
+.flatpickr-calendar {
+    background: #fdf6e9 !important;
+    border: 2px solid #32424D !important;
+    width: 320px !important;
+}
+
+.flatpickr-day {
+    font-size: 1.1rem !important;
+    font-weight: bold !important;
+    height: 45px !important;
+    line-height: 45px !important;
+}
+
+.dia-resaltado {
+    position: relative;
+    font-weight: 900 !important;
+    color: #32424D !important;
+}
+
+.dia-resaltado::after {
+    content: "";
+    position: absolute;
+    bottom: 8px;
+    left: 10%;
+    right: 10%;
+    height: 8px;
+    opacity: 0.5;
+    border-radius: 4px;
+    background-color: var(--color-actividad, #bc6a50);
+    z-index: -1;
+}
+
+/* Navbar Responsive & Dropdowns */
+@media (max-width: 1024px) {
+    #nav-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: #F1E498;
+        flex-direction: column;
+        padding: 20px;
+        gap: 15px;
+        border-bottom: 2px solid #32424D;
+        z-index: 100;
+    }
+
+    #nav-menu.show {
+        display: flex;
+    }
+
+    .dropdown-container {
+        position: static !important;
+    }
+
+    .dropdown-content {
+        width: 90% !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+}

@@ -3,16 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Actividades; // Asegúrate de que el modelo se llame así
+use App\Models\Actividades;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon; // Fundamental para manejar el tiempo
 
 class ActividadesController extends Controller
 {
     /**
      * Vista de administración (Tabla de gestión)
+     * Muestra todas las actividades para que el admin pueda editarlas o borrarlas.
      */
     public function index(Request $request)
     {
+        if (Auth::user()->email !== 'cabrerajosedaniel89@gmail.com') {
+            return redirect()->route('pagina.inicio')->with('error', 'No tienes permisos para acceder a esta sección.');
+        }
+
+        // Ordenamos por fecha para que el admin vea lo más próximo arriba
         $actividades = Actividades::orderBy('fecha', 'asc')->paginate(10);
 
         if ($request->ajax()) {
@@ -23,21 +31,28 @@ class ActividadesController extends Controller
     }
 
     /**
-     * Vista principal del usuario (Inicio)
+     * Vista principal del usuario (Página de Inicio)
+     * Filtra para que NO aparezcan actividades que ya han pasado.
      */
     public function indexPrincipal(Request $request)
     {
-        // Traemos las actividades ordenadas por fecha próxima
-        $actividades = Actividades::orderBy('fecha', 'asc')->paginate(4);
+        // Obtenemos la fecha de hoy (formato YYYY-MM-DD)
+        $hoy = Carbon::today()->toDateString();
 
-        // También necesitamos las actividades en las que el usuario está inscrito para "Mis Álbumes"
+        // Filtramos: Solo actividades cuya fecha sea hoy o en el futuro
+        $actividades = Actividades::where('fecha', '>=', $hoy)
+            ->orderBy('fecha', 'asc')
+            ->paginate(4);
+
+        // Actividades del usuario logueado (para la sección "Mis Álbumes")
         $mis_actividades = [];
         if (Auth::check()) {
+            // Cargamos las actividades del usuario con sus fotos (media)
             $mis_actividades = Auth::user()->actividades()->with('media')->get();
         }
 
         if ($request->ajax()) {
-            // Esto sirve para el botón "Cargar más" de tu vista de inicio
+            // Útil para sistemas de scroll infinito o botones "Cargar más"
             return view('actividades.partials.lista', compact('actividades'))->render();
         }
 
@@ -49,7 +64,6 @@ class ActividadesController extends Controller
      */
     public function create()
     {
-        // Pasamos un objeto vacío y la operación para reutilizar vistas si fuera necesario
         return view('actividades.create', [
             'actividad' => new Actividades(),
             'oper' => 'create'
@@ -57,34 +71,46 @@ class ActividadesController extends Controller
     }
 
     /**
-     * Guardar nueva actividad y bloquear campos mediante sesión
+     * Guardar nueva actividad
      */
     public function store(Request $request)
     {
+        $isAdmin = Auth::user()->email == 'cabrerajosedaniel89@gmail.com';
+        
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'required|string',
-            'fecha' => 'required|date',
-            'hora' => 'required|string',
-            'lugar' => 'required|string',
-            'precio' => 'required|numeric',
-            'cupos' => 'required|numeric',
+            'nombre'           => 'required|string|max:255',
+            'descripcion'      => 'required|string',
+            'fecha'            => 'required|date',
+            'hora'             => 'required|string',
+            'lugar'            => 'required|string',
+            'precio'           => $isAdmin ? 'required|numeric' : 'nullable|numeric',
+            'cupos'            => $isAdmin ? 'required|numeric' : 'nullable|numeric',
+            'imagen'           => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Creamos el registro
+        if (!$isAdmin) {
+            $validated['precio'] = $validated['precio'] ?? 0;
+            $validated['cupos'] = $validated['cupos'] ?? 50;
+        }
+
+        if ($request->hasFile('imagen')) {
+            $path = $request->file('imagen')->store('actividades', 'public');
+            $validated['imagen'] = 'storage/' . $path;
+        } else {
+            // Imagen genérica basada en palabras clave + LOCK único para evitar repetidas
+            $keyword = urlencode($request->nombre);
+            $seed = rand(1, 9999);
+            $validated['imagen'] = "https://loremflickr.com/800/600/{$keyword}/all?lock={$seed}";
+        }
+
         Actividades::create($validated);
 
-        /**
-         * REDIRECCIÓN CLAVE:
-         * Al usar back(), regresamos a la vista 'create'.
-         * El "with('success', ...)" activará el @if(session('success')) en tu Blade,
-         * ocultando el formulario y mostrando el botón de volver al inicio.
-         */
+        // Regresamos con mensaje de éxito
         return back()->with('success', '¡La actividad se ha creado con éxito!');
     }
 
     /**
-     * Mostrar una actividad específica
+     * Mostrar una actividad específica (Modo lectura)
      */
     public function show(Actividades $actividad)
     {
@@ -100,19 +126,30 @@ class ActividadesController extends Controller
     }
 
     /**
-     * Actualizar actividad
+     * Actualizar actividad existente
      */
     public function update(Request $request, Actividades $actividad)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
+            'nombre'      => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'fecha' => 'required|date',
-            'hora' => 'required|string',
-            'lugar' => 'required|string',
-            'precio' => 'required|numeric',
-            'cupos' => 'required|numeric',
+            'fecha'       => 'required|date',
+            'hora'        => 'required|string',
+            'lugar'       => 'required|string',
+            'precio'      => 'required|numeric',
+            'cupos'       => 'required|numeric',
+            'imagen'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('imagen')) {
+            $path = $request->file('imagen')->store('actividades', 'public');
+            $validated['imagen'] = 'storage/' . $path;
+        } elseif (empty($actividad->imagen) || str_contains($actividad->imagen, 'loremflickr.com')) {
+            // Si no tiene o es de la API, la regeneramos por si ha cambiado el nombre
+            $keyword = urlencode($request->nombre);
+            $seed = rand(1, 9999);
+            $validated['imagen'] = "https://loremflickr.com/800/600/{$keyword}/all?lock={$seed}";
+        }
 
         $actividad->update($validated);
 
@@ -124,20 +161,36 @@ class ActividadesController extends Controller
      */
     public function destroy(Actividades $actividad)
     {
+        // Esto también debería eliminar las relaciones en la tabla pivote si usas onDelete('cascade')
         $actividad->delete();
+        
         return redirect()->route('actividades.index')->with('success', 'Actividad eliminada correctamente.');
     }
 
     /**
-     * Método para inscribir usuario (AJAX que usas en tu vista de inicio)
+     * Método para inscribir al usuario en una actividad (Muchos a Muchos)
      */
-    public function inscribir($id)
+    public function inscribir(Request $request, $id)
     {
-        // Aquí iría tu lógica de inscripción (ej: tabla pivote user_actividad)
-        // Ejemplo rápido:
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Debes iniciar sesión'], 401);
+        }
+
+        $actividad = Actividades::findOrFail($id);
+        $user = Auth::user();
+
+        // Evitar duplicados en la tabla pivote 'actividad_user'
+        if (!$user->actividades()->where('actividad_id', $id)->exists()) {
+            $user->actividades()->attach($id);
+            return response()->json([
+                'success' => true, 
+                'message' => '¡Te has inscrito correctamente!'
+            ]);
+        }
+
         return response()->json([
-            'success' => true,
-            'message' => 'Inscripción completada'
+            'success' => false, 
+            'message' => 'Ya estás inscrito en esta actividad'
         ]);
     }
 }

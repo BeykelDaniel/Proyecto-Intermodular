@@ -12,22 +12,30 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://kit.fontawesome.com/d42bf2e593.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    {{-- Lógica de Tamaño de Letra Global para Mayores --}}
+    @auth
+    @php
+        $fontSizeMap = [1 => '14px', 2 => '16px', 3 => '18px', 4 => '21px', 5 => '24px'];
+        $baseSize = $fontSizeMap[Auth::user()->font_size ?? 3];
+    @endphp
+    <style> :root { --app-font-size: {{ $baseSize }}; } </style>
+    @endauth
 </head>
 
 <body class="bg-gray-100 antialiased font-sans">
+    <div id="app">
+        @include('navbar')
 
-    @include('navbar')
+        <main class="container mx-auto mt-8 px-4 min-h-screen">
+            @yield('contenido')
+        </main>
 
-    <main class="container mx-auto mt-8 px-4 min-h-screen">
-
-        {{-- Inyectamos el contenido de cada vista (Login, Registro, Usuarios...) --}}
-        @yield('contenido')
-
-    </main>
-
-    <footer class="py-6 text-center text-gray-500 text-sm">
-        &copy; {{ date('Y') }} Tenderete - Todos los derechos reservados.
-    </footer>
+        <footer class="py-6 text-center text-gray-500 text-sm">
+            &copy; {{ date('Y') }} Tenderete - Todos los derechos reservados.
+        </footer>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Comunidades extends Model
+class Foto extends Model
 {
     public function users()
     {

@@ -4,15 +4,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage; // Importante para borrar archivos
+use Illuminate\Support\Facades\Auth; // Added for Auth::id()
 
 class AlbumController extends Controller
 {
     public function index()
     {
-        // Obtenemos los archivos de la tabla 'media'
-        $items = DB::table('media')->orderBy('created_at', 'desc')->get();
-
-        return view('pagina.album', compact('items'));
+        $actividades = auth()->user()->actividades()->withCount('media')->get();
+        return view('pagina.album', compact('actividades'));
     }
 
     public function subir(Request $request)
@@ -23,11 +22,12 @@ class AlbumController extends Controller
         ]);
 
         if ($request->hasFile('archivo')) {
-            $file = $request->file('archivo');
-            $tipo = str_contains($file->getMimeType(), 'video') ? 'video' : 'foto';
-
+            $archivo = $request->file('archivo');
+            $extension = $archivo->getClientOriginalExtension();
+            $tipo = in_array(strtolower($extension), ['mp4', 'mov', 'avi']) ? 'video' : 'foto';
+            
             // Guarda en storage/app/public/album
-            $path = $file->store('album', 'public');
+            $path = $archivo->store('album', 'public');
 
             DB::table('media')->insert([
                 'url' => 'storage/' . $path,
@@ -45,6 +45,12 @@ class AlbumController extends Controller
 
     public function showActivityAlbum($id)
     {
+        $user = auth()->user();
+        // Check if user is enrolled in the activity
+        if (!$user->actividades->contains($id)) {
+            return redirect()->route('pagina.album')->with('error', 'No estás inscrito en esta actividad.');
+        }
+
         $actividad = \App\Models\Actividades::findOrFail($id);
         $items = DB::table('media')->where('actividad_id', $id)->orderBy('created_at', 'desc')->get();
         return view('pagina.album_actividad', compact('actividad', 'items'));
@@ -71,6 +77,11 @@ class AlbumController extends Controller
         $archivo = DB::table('media')->where('id', $id)->first();
 
         if ($archivo) {
+            // Check ownership or admin
+            if ($archivo->user_id != Auth::id() && Auth::user()->email != 'cabrerajosedaniel89@gmail.com') {
+                return redirect()->back()->with('error', 'No tienes permiso para borrar este archivo.');
+            }
+
             // 1. Borrar archivo físico usando el Facade Storage
             // Convertimos 'storage/album/xxx.jpg' a 'album/xxx.jpg'
             $pathPublic = str_replace('storage/', '', $archivo->url);

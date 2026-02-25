@@ -47,7 +47,12 @@
                     {{-- Se repite por cada amigo encontrado --}}
                     <li onclick="abrirModalAñadirAmigo({{ $u->toJson() }})"
                         class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors mb-1">
-                        <span class="text-lg">👤</span> {{ $u->name }}
+                        @if($u->perfil_foto)
+                            <img src="{{ asset($u->perfil_foto) }}" alt="{{ $u->name }}" class="w-8 h-8 rounded-full object-cover shadow-sm">
+                        @else
+                            <span class="text-lg">👤</span>
+                        @endif
+                         {{ $u->name }}
                     </li>
                     @empty
                     {{-- Esto sale solo si la base de datos no devuelve usuarios --}}
@@ -68,15 +73,15 @@
             @include('actividades.partials.lista')
 
             {{-- NO SACA MI USUARIO -> ADMIN --}}
-        @if(Auth::user()?->email == 'cabrerajosedaniel89@gmail.com')
-        <div class="flex items-center justify-center">
+        @auth
+        <div class="flex items-center justify-center col-span-full mt-4">
             <button type="button" onclick="window.location.href='{{ route('actividades.create') }}'"
-                class="group flex flex-col items-center justify-center w-32 h-32 bg-indigo-50 border-2 border-solid border-indigo-600 rounded-2xl hover:bg-indigo-100 hover:border-indigo-400 transition-all duration-300">
-                <i class="bi bi-plus-lg text-2xl text-indigo-600 group-hover:scale-110 transition-transform"></i>
-                <span class="text-lg font-black uppercase text-indigo-600 mt-2 tracking-widest">Crear</span>
+                class="group flex items-center justify-center w-full h-24 bg-white border-4 border-solid border-indigo-600 rounded-[35px] hover:bg-indigo-50 transition-all duration-300 shadow-xl">
+                <i class="bi bi-plus-circle-fill text-4xl text-indigo-600 mr-6 group-hover:scale-110 transition-transform"></i>
+                <span class="text-2xl font-black uppercase text-indigo-600 tracking-widest">Crear Nueva Actividad</span>
             </button>
         </div>
-        @endif
+        @endauth
         </div>
 
         @if($actividades->hasMorePages())
@@ -102,6 +107,25 @@
         <h4 class="m-0 mb-4 text-gray-800 text-xl font-bold border-b border-gray-100 pb-3 uppercase">
             <i class="bi bi-images bg-[#bc6a50] text-white rounded-full p-2"></i> Mis Álbumes
         </h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            @forelse($mis_actividades as $ma)
+            <div class="flex flex-col gap-2 p-2 border border-gray-100 rounded-xl hover:shadow-md transition-all cursor-pointer" 
+                 onclick="window.location.href='{{ route('actividades.album', $ma->id) }}'">
+                <div class="h-24 w-full bg-gray-100 rounded-lg overflow-hidden">
+                    @if($ma->imagen)
+                        <img src="{{ asset($ma->imagen) }}" class="w-full h-full object-cover">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center text-gray-400">
+                            <i class="bi bi-images text-2xl"></i>
+                        </div>
+                    @endif
+                </div>
+                <span class="text-xs font-bold text-center uppercase truncate">{{ $ma->nombre }}</span>
+            </div>
+            @empty
+            <p class="text-gray-400 italic text-sm">Aún no tienes álbumes de actividades.</p>
+            @endforelse
+        </div>
     </div>
 </div>
 
@@ -183,9 +207,18 @@
         actSel = a;
         document.getElementById('modal-body').innerHTML = `
             <h3 class="text-2xl font-black text-gray-800 uppercase">${limpiarTexto(a.nombre)}</h3>
+            ${a.imagen ? `<div class="mt-4 rounded-2xl overflow-hidden h-40 w-full"><img src="/${a.imagen}" class="w-full h-full object-cover"></div>` : ''}
             <p class="text-gray-400 font-bold mt-2"> <i class="bi bi-geo-fill text-[#bc6a50]"></i> ${limpiarTexto(a.lugar)}</p>
             <div class="mt-6 bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-200">
                 <p class="text-[#bc6a50] text-2xl font-black">${a.hora.substring(0, 5)}h</p>
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-2">
+                <a href="/actividades/${a.id}/foro" class="flex items-center justify-center gap-2 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-bold uppercase text-xs hover:bg-indigo-100 transition-all">
+                    <i class="bi bi-chat-dots-fill"></i> Foro
+                </a>
+                <a href="/actividades/${a.id}/album" class="flex items-center justify-center gap-2 py-2 bg-pink-50 text-pink-600 rounded-xl font-bold uppercase text-xs hover:bg-pink-100 transition-all">
+                    <i class="bi bi-images"></i> Álbum
+                </a>
             </div>`;
         mostrarFormulario('act');
         document.getElementById('modalActividad').classList.remove('hidden');
@@ -204,11 +237,13 @@
         const fechaNac = u.fecha_nacimiento ? u.fecha_nacimiento.split('T')[0] : 'No disponible';
         const icono = (genero.toLowerCase() === 'mujer') ? '👩' : '👨';
 
+        const fotoHtml = u.perfil_foto 
+            ? `<img src="/${u.perfil_foto}" class="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover">`
+            : `<div class="w-24 h-24 bg-gray-100 rounded-full border-4 border-white shadow-md flex items-center justify-center text-5xl shrink-0">${icono}</div>`;
+
         document.getElementById('modal-amigo-body').innerHTML = `
             <div class="flex justify-center mb-4">
-                <div class="w-24 h-24 bg-gray-100 rounded-full border-4 border-white shadow-md flex items-center justify-center text-5xl shrink-0">
-                    ${icono}
-                </div>
+                ${fotoHtml}
             </div>
             <h3 class="text-2xl font-black text-gray-800 uppercase">${nombreLimpio}</h3>
             <div class="grid grid-cols-2 gap-2 mt-4 bg-gray-50 p-3 rounded-2xl border border-gray-100 text-center">
@@ -228,7 +263,7 @@
     }
 
     document.getElementById('confirmarAñadirAmigo').onclick = function () {
-        ejecutarPost(`/amigos/${amigoSel.id}/anadir`, 'amigo', `Solicitud enviada a ${amigoSel.name}`);
+        ejecutarPost(`/amigos/${amigoSel.id}/solicitar`, 'amigo', `Solicitud enviada a ${amigoSel.name}`);
     };
 
     // --- EJECUCIÓN POST AJAX ---

@@ -7,6 +7,7 @@ use App\Http\Controllers\InscripcionesController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\AmigosController; // Asegúrate de tener este controlador creado
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,9 +38,7 @@ Route::get('/amigos', function () {
     return view('pagina.amigos');
 })->name('pagina.amigos');
 
-Route::get('/foro', function () {
-    return view('pagina.foro');
-})->name('pagina.foro');
+Route::get('/foro', [App\Http\Controllers\ForoController::class, 'index'])->name('pagina.foro');
 
 // --- RUTAS DEL ÁLBUM ---
 Route::get('/album', [AlbumController::class , 'index'])->name('pagina.album');
@@ -66,10 +65,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
         )->name('dashboard');
 
-        // --- SECCIÓN AMIGOS (Añadida aquí) ---
-        // Usamos 'anadir' para evitar errores de codificación con la 'ñ'
-        Route::post('/amigos/{id}/anadir', [AmigosController::class , 'store'])
-            ->name('amigos.anadir');
+        // --- SECCIÓN AMIGOS ---
+        Route::get('/amigos', [AmigosController::class, 'index'])->name('pagina.amigos');
+        Route::post('/amigos/{id}/solicitar', [AmigosController::class, 'store'])->name('amigos.solicitar');
+        Route::get('/perfil/{id}', [UsuarioController::class, 'verPerfil'])->name('perfil.ver');
+        Route::post('/amigos/{id}/aceptar', [AmigosController::class, 'accept'])->name('amigos.accept');
+        Route::post('/amigos/{id}/rechazar', [AmigosController::class, 'reject'])->name('amigos.reject');
+        Route::delete('/amigos/{id}/eliminar', [AmigosController::class, 'destroy'])->name('amigos.destroy');
+
+        // --- NOTIFICACIONES ---
+        Route::get('/notificaciones', [App\Http\Controllers\NotificacionController::class, 'index'])->name('notificaciones.index');
 
         // Inscripciones a actividades
         Route::post('/actividades/{id}/inscribir', [InscripcionesController::class , 'inscribir'])
@@ -87,10 +92,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Gestión de Usuarios
         Route::resource('usuarios', UsuarioController::class);
 
-        // Perfil de Usuario
-        Route::get('/profile', [ProfileController::class , 'edit'])->name('profile.edit');
+        // Perfil de Usuario (Configuración)
+        Route::get('/profile', function() {
+            return view('pagina.profile_edit');
+        })->name('profile.edit');
         Route::patch('/profile', [ProfileController::class , 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class , 'destroy'])->name('profile.destroy');
+        Route::post('/profile/font-size', [ProfileController::class, 'updateFontSize'])->name('profile.updateFontSize');
+
+        // --- FOROS Y ÁLBUMES DE ACTIVIDADES ---
+        Route::get('/actividades/{id}/foro', [App\Http\Controllers\ForoController::class, 'show'])->name('actividades.foro');
+        Route::post('/actividades/{id}/foro', [App\Http\Controllers\ForoController::class, 'post'])->name('actividades.foro.post');
+        Route::get('/actividades/{id}/foro/nuevos', [App\Http\Controllers\ForoController::class, 'getNewMessages'])->name('actividades.foro.nuevos');
+        Route::get('/actividades/{id}/album', [App\Http\Controllers\AlbumController::class, 'showActivityAlbum'])->name('actividades.album');
+        Route::delete('/album/{id}', [App\Http\Controllers\AlbumController::class, 'destroy'])->name('album.destroy');
+        Route::get('/actividades/inscritas', [App\Http\Controllers\InscripcionesController::class, 'inscritas'])->name('actividades.inscritas');
+
+        // --- CHAT PRIVADO ---
+        Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
+        Route::post('/chat/{id}', [ChatController::class, 'store'])->name('chat.store');
+        Route::get('/chat/{id}/nuevos', [ChatController::class, 'getNuevos'])->name('chat.nuevos');
     });
 
 require __DIR__ . '/auth.php';
