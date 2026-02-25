@@ -2,11 +2,11 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Listado de Actividades') }}
+                {{ __('Listado de Amigos') }}
             </h2>
-            <a href="{{ route('actividades.create') }}"
+            <a href="{{ route('amigos.create') }}"
                 class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ease-in-out duration-150 shadow-sm">
-                + Nueva Actividad
+                + Nuevo Amigo
             </a>
         </div>
     </x-slot>
@@ -35,31 +35,19 @@
                                         Nombre</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Descripción</th>
+                                        Apellidos</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Fecha</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Hora</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Lugar</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Precio</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Cupos</th>
+                                        Foto</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach ($actividades as $actividad)
+                                @foreach ($amigos as $amigo)
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex items-center space-x-3">
                                             {{-- Consultar --}}
-                                            <a href="{{ route('actividades.show', $actividad) }}"
+                                            <a href="{{ route('amigos.show', $amigo) }}"
                                                 class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
@@ -71,7 +59,7 @@
                                                 </svg>
                                             </a>
                                             {{-- Editar --}}
-                                            <a href="{{ route('actividades.edit', $actividad) }}"
+                                            <a href="{{ route('amigos.edit', $amigo) }}"
                                                 class="text-green-600 hover:text-green-900" title="Editar">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
@@ -81,9 +69,9 @@
                                                 </svg>
                                             </a>
                                             {{-- Eliminar --}}
-                                            <form action="{{ route('actividades.destroy', $actividad) }}" method="POST"
+                                            <form action="{{ route('amigos.destroy', $amigo) }}" method="POST"
                                                 class="inline"
-                                                onsubmit="return confirm('¿Estás seguro de eliminar esta actividad?')">
+                                                onsubmit="return confirm('¿Estás seguro de eliminar este amigo?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-900"
@@ -99,22 +87,14 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{{
-                                        $actividad->nombre }}</td>
+                                        $amigo->nombre }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{
-                                        $actividad->descripcion }}
+                                        $amigo->apellidos }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        {{ $actividad->fecha ?
-                                        \Carbon\Carbon::parse($actividad->fecha)->format('d/m/Y') : 'N/A' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{
-                                        $actividad->hora }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 italic">{{
-                                        ucfirst($actividad->lugar) }}</td>
+                                        ucfirst($amigo->genero) }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 italic">{{
-                                        ucfirst($actividad->precio) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 italic">{{
-                                        ucfirst($actividad->cupos) }}</td>
+                                        ucfirst($amigo->foto) }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -122,7 +102,7 @@
                     </div>
                     {{-- Paginación --}}
                     <div class="mt-6">
-                        {{ $actividades->links() }}
+                        {{ $amigos->links() }}
                     </div>
                 </div>
             </div>

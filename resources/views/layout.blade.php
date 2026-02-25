@@ -10,6 +10,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kit.fontawesome.com/d42bf2e593.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 
 <body class="bg-gray-100 antialiased font-sans">

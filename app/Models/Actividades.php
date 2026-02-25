@@ -18,5 +18,16 @@ class Actividades extends Model
         'lugar',
         'precio',
         'cupos',
+        'imagen',
     ];
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'actividades_id');
+    }
+
+    public function media()
+    {
+        return $this->hasMany(Foto::class, 'actividad_id');
+    }
 }

@@ -9,8 +9,9 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    public function actividades() {
-        return $this->belongsToMany(Actividades::class, 'actividad_user', 'user_id', 'actividades_id');
+    public function actividades()
+    {
+        return $this->belongsToMany(Actividades::class , 'actividad_user', 'user_id', 'actividades_id');
     }
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -27,6 +28,7 @@ class User extends Authenticatable
         'fecha_nacimiento',
         'genero',
         'numero_telefono',
+        'perfil_foto',
     ];
 
     /**
@@ -51,5 +53,15 @@ class User extends Authenticatable
             'password' => 'hashed',
             'fecha_nacimiento' => 'date',
         ];
+    }
+
+    public function amigos()
+    {
+        return $this->belongsToMany(User::class , 'amigos', 'user_id', 'amigo_id');
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
     }
 }
