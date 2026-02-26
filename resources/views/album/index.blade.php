@@ -1,128 +1,271 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Administrar Álbum Multimedia') }}
-            </h2>
-            {{-- Botón para ir al álbum público --}}
-            <a href="{{ route('pagina.album') }}"
-                class="bg-[#bc6a50] text-white px-4 py-2 rounded-lg text-sm font-bold uppercase shadow-sm hover:bg-[#32424D] transition-all">
-                Ver Álbum Público
-            </a>
-        </div>
-    </x-slot>
+@extends('layout')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            {{-- Mensajes de Estado --}}
-            @if (session('success'))
-            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow-sm"
-                role="alert">
-                <span class="block sm:inline font-medium">{{ session('success') }}</span>
-            </div>
-            @endif
+@section('title', 'Inicio')
 
-            @if (session('error'))
-            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow-sm"
-                role="alert">
-                <span class="block sm:inline font-medium">{{ session('error') }}</span>
-            </div>
-            @endif
+@section('contenido')
+<div class="bg-[#C28AED] min-h-screen p-4 font-sans flex flex-col items-center gap-4 rounded-2xl">
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
-                <div class="p-6 text-gray-900">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Miniatura</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Tipo</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Fecha Subida</th>
-                                    <th
-                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse ($fotos as $foto)
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    {{-- Miniatura con soporte para Video --}}
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div
-                                            class="h-16 w-16 rounded-lg overflow-hidden border border-gray-100 bg-gray-50">
-                                            @if($foto->tipo == 'foto')
-                                            <img src="{{ asset($foto->url) }}" class="h-full w-full object-cover">
-                                            @else
-                                            <video src="{{ asset($foto->url) }}" class="h-full w-full object-cover"
-                                                muted></video>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    {{-- Etiqueta de Tipo --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $foto->tipo == 'foto' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
-                                            {{ ucfirst($foto->tipo) }}
-                                        </span>
-                                    </td>
-                                    {{-- Fecha formateada --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        {{ \Carbon\Carbon::parse($foto->created_at)->format('d/m/Y H:i') }}
-                                    </td>
-                                    {{-- Botones de Acción --}}
-                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                        <div class="flex justify-center space-x-3">
-                                            {{-- Ver Original --}}
-                                            <a href="{{ asset($foto->url) }}" target="_blank"
-                                                class="text-blue-600 hover:text-blue-900" title="Ver original">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                            </a>
-
-                                            {{-- Eliminar --}}
-                                            <form action="{{ route('fotos.destroy', $foto->id) }}" method="POST"
-                                                class="inline"
-                                                onsubmit="return confirm('¿Estás totalmente seguro? El archivo físico también se borrará.')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="4" class="px-6 py-10 text-center text-gray-400 italic">No hay archivos
-                                        multimedia registrados.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {{-- Paginación (Asegúrate de usar paginate() en el controlador) --}}
-
+    {{-- FILA SUPERIOR: VIDEO Y BANNER --}}
+    <div class="flex flex-col md:flex-row gap-4 w-full max-w-[1100px] h-auto md:h-[500px] items-stretch">
+        <div class="md:flex-[3] flex flex-col gap-4">
+            <div class="flex gap-4 bg-white rounded-xl p-4 shadow-sm shrink-0">
+                <div class="w-[220px] shrink-0">
+                    <video id="mainVideo" src="{{ asset('vid.mp4') }}" autoplay muted loop controls
+                        class="w-full rounded-lg bg-black"></video>
                 </div>
+                <div class="flex-1 overflow-y-auto max-h-[140px]">
+                    <h4 class="m-0 mb-2 text-[#bc6a50] text-lg font-semibold">Transcripción</h4>
+                    <p class="m-0 text-[#3b4d57] text-sm leading-relaxed">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat perferendis quia obcaecati
+                        tempora odit quam cum porro libero, vitae fugit inventore repellat laboriosam repudiandae
+                        maiores.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex-grow rounded-xl overflow-hidden shadow-sm bg-white flex justify-center items-center p-2">
+                <img src="{{ asset('banner.png') }}" alt="banner" class="w-full h-auto object-contain block rounded-lg">
+            </div>
+        </div>
+
+        {{-- BARRA LATERAL: AMIGOS --}}
+        <div class="w-full md:w-[240px] bg-white rounded-xl p-4 shadow-sm flex flex-col">
+            <div class="flex justify-between items-center mb-3 border-b border-gray-100 pb-2">
+                <h4 class="m-0 text-[#bc6a50] text-lg font-semibold">Añadir Amigos</h4>
+            </div>
+            <div class="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+                <ul class="p-0 m-0 list-none text-[#3b4d57] text-sm">
+                    @php
+                        $usuarios_db = \App\Models\User::where('id', '!=', auth()->id())
+                            ->where('email', '!=', 'cabrerajosedaniel89@gmail.com')
+                            ->latest()->take(15)->get();
+                    @endphp
+
+                    @forelse($usuarios_db as $u)
+                        <li onclick='abrirModalAñadirAmigo(@json($u))'
+                            class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors mb-1">
+                            @if($u->perfil_foto)
+                                <img src="{{ asset($u->perfil_foto) }}" alt="{{ $u->name }}" class="w-8 h-8 rounded-full object-cover shadow-sm">
+                            @else
+                                <span class="text-lg">👤</span>
+                            @endif
+                            {{ $u->name }}
+                        </li>
+                    @empty
+                        <li class="text-gray-400 italic p-2">No hay otros usuarios disponibles</li>
+                    @endforelse
+                </ul>
             </div>
         </div>
     </div>
-</x-app-layout>
+
+    {{-- SECCIÓN ACTIVIDADES --}}
+    <div class="w-full max-w-[1100px] bg-white rounded-xl p-6 shadow-sm">
+        <h4 class="m-0 mb-4 text-gray-800 text-xl font-bold border-b border-gray-100 pb-3 uppercase">
+            <i class="bi bi-calendar-fill bg-[#bc6a50] text-white rounded-full p-2"></i> Próximas Actividades
+        </h4>
+        
+        <div id="contenedor-actividades" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @include('actividades.partials.lista')
+        </div>
+
+        @auth
+        <div class="flex items-center justify-center mt-6">
+            <button type="button" onclick="window.location.href='{{ route('actividades.create') }}'"
+                class="group flex items-center justify-center w-full h-24 bg-white border-4 border-dashed border-indigo-600 rounded-[35px] hover:bg-indigo-50 transition-all duration-300 shadow-xl">
+                <i class="bi bi-plus-circle-fill text-4xl text-indigo-600 mr-6 group-hover:scale-110 transition-transform"></i>
+                <span class="text-2xl font-black uppercase text-indigo-600 tracking-widest">Crear Nueva Actividad</span>
+            </button>
+        </div>
+        @endauth
+
+        @if($actividades->hasMorePages())
+        <div id="wrapper-btn-cargar" class="flex flex-col items-center mt-8 gap-2">
+            @php $restantes = $actividades->total() - ($actividades->currentPage() * $actividades->perPage()); @endphp
+            <p id="texto-restantes" class="text-black text-s font-bold uppercase tracking-widest">
+                Quedan <span id="num-restantes" class="text-[#1C31B5]">{{ $restantes > 0 ? $restantes : 0 }}</span> actividades por ver
+            </p>
+            <button id="btn-cargar-mas" data-pagina="2" data-total="{{ $actividades->total() }}" data-perpage="{{ $actividades->perPage() }}"
+                class="bg-[#ecb577] text-white px-8 py-2.5 rounded-lg font-black text-xs uppercase hover:bg-[#d9a466] transition-all shadow-md">
+                Más Actividades
+            </button>
+        </div>
+        @endif
+    </div>
+
+    {{-- MIS ÁLBUMES --}}
+    <div class="w-full max-w-[1100px] bg-white rounded-xl p-6 shadow-sm">
+        <h4 class="m-0 mb-4 text-gray-800 text-xl font-bold border-b border-gray-100 pb-3 uppercase">
+            <i class="bi bi-images bg-[#bc6a50] text-white rounded-full p-2"></i> Mis Álbumes
+        </h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            @forelse($mis_actividades as $ma)
+            <div class="flex flex-col gap-2 p-2 border border-gray-100 rounded-xl hover:shadow-md transition-all cursor-pointer" 
+                 onclick="window.location.href='{{ route('actividades.album', $ma->id) }}'">
+                <div class="h-24 w-full bg-gray-100 rounded-lg overflow-hidden">
+                    @if($ma->imagen) <img src="{{ asset($ma->imagen) }}" class="w-full h-full object-cover">
+                    @else <div class="w-full h-full flex items-center justify-center text-gray-400"><i class="bi bi-images text-2xl"></i></div> @endif
+                </div>
+                <span class="text-xs font-bold text-center uppercase truncate">{{ $ma->nombre }}</span>
+            </div>
+            @empty
+            <p class="text-gray-400 italic text-sm">Aún no tienes álbumes de actividades.</p>
+            @endforelse
+        </div>
+    </div>
+</div>
+
+{{-- MODAL INSCRIPCIÓN --}}
+<div id="modalActividad" class="fixed inset-0 bg-black/60 z-[999] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-[30px] max-w-sm w-full p-8 shadow-2xl">
+        <div id="act-form-content">
+            <div id="modal-body" class="text-center"></div>
+            <button id="confirmarInscripcionBtn" class="w-full mt-8 py-4 bg-[#bc6a50] text-white rounded-2xl font-black uppercase tracking-widest hover:bg-[#8e4f3c] transition-all shadow-lg">
+                Confirmar Inscripción
+            </button>
+            <button onclick="cerrarModal('modalActividad')" class="w-full mt-2 py-2 text-gray-400 font-bold uppercase text-xs">Cancelar</button>
+        </div>
+        <div id="act-exito-content" class="hidden text-center py-6">
+            <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h3 class="text-2xl font-black text-gray-800 uppercase">¡Registrado!</h3>
+            <p id="exito-msg-act" class="text-gray-500 text-sm mt-2"></p>
+            <button onclick="cerrarModal('modalActividad')" class="mt-8 w-full py-4 bg-[#32424D] text-white rounded-2xl font-black uppercase">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL AÑADIR AMIGO --}}
+<div id="ModalAñadirAmigo" class="fixed inset-0 bg-black/60 z-[999] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-[30px] max-w-sm w-full p-8 shadow-2xl">
+        <div id="amigo-form-content">
+            <div id="modal-amigo-body" class="text-center"></div>
+            <button id="confirmarAñadirAmigoBtn" class="w-full mt-8 py-4 bg-[#B8A019] text-white rounded-2xl font-black uppercase tracking-widest hover:bg-[#907D14] transition-all shadow-lg">
+                Enviar Solicitud
+            </button>
+            <button onclick="cerrarModal('ModalAñadirAmigo')" class="w-full mt-2 py-2 text-gray-400 font-bold uppercase text-xs">Cancelar</button>
+        </div>
+        <div id="amigo-exito-content" class="hidden text-center py-6">
+            <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h3 class="text-2xl font-black text-gray-800 uppercase">¡Genial!</h3>
+            <p id="exito-msg-amigo" class="text-gray-500 text-sm mt-2"></p>
+            <button onclick="cerrarModal('ModalAñadirAmigo')" class="mt-8 w-full py-4 bg-[#32424D] text-white rounded-2xl font-black uppercase">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let actSel = null;
+    let amigoSel = null;
+
+    function limpiarTexto(texto) { return texto ? texto.trim().replace(/\s+/g, ' ') : ""; }
+    function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    // --- LÓGICA ACTIVIDADES ---
+    window.abrirModal = function(a) {
+        actSel = a;
+        document.getElementById('modal-body').innerHTML = `
+            <h3 class="text-2xl font-black text-gray-800 uppercase">${limpiarTexto(a.nombre)}</h3>
+            ${a.imagen ? `<div class="mt-4 rounded-2xl overflow-hidden h-40 w-full"><img src="/${a.imagen}" class="w-full h-full object-cover"></div>` : ''}
+            <p class="text-gray-400 font-bold mt-2"><i class="bi bi-geo-fill text-[#bc6a50]"></i> ${limpiarTexto(a.lugar)}</p>
+            <div class="mt-6 bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-200">
+                <p class="text-[#bc6a50] text-2xl font-black">${a.hora.substring(0, 5)}h</p>
+            </div>`;
+        document.getElementById('act-form-content').classList.remove('hidden');
+        document.getElementById('act-exito-content').classList.add('hidden');
+        document.getElementById('modalActividad').classList.remove('hidden');
+    };
+
+    document.getElementById('confirmarInscripcionBtn').onclick = function() {
+        ejecutarPost(`/actividades/${actSel.id}/inscribir`, 'act', `Te has inscrito en ${actSel.nombre}`);
+    };
+
+    // --- LÓGICA AMIGOS (CON EDAD) ---
+    window.abrirModalAñadirAmigo = function(u) {
+        amigoSel = u;
+        let edad = "N/A";
+        if(u.fecha_nacimiento) {
+            const nac = new Date(u.fecha_nacimiento);
+            const hoy = new Date();
+            edad = hoy.getFullYear() - nac.getFullYear();
+            if (hoy.getMonth() < nac.getMonth() || (hoy.getMonth() === nac.getMonth() && hoy.getDate() < nac.getDate())) edad--;
+        }
+        
+        const icono = (u.genero?.toLowerCase() === 'mujer') ? '👩' : '👨';
+        const fotoHtml = u.perfil_foto 
+            ? `<img src="/${u.perfil_foto}" class="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover mx-auto">`
+            : `<div class="w-24 h-24 bg-gray-100 rounded-full border-4 border-white shadow-md flex items-center justify-center text-5xl mx-auto">${icono}</div>`;
+
+        document.getElementById('modal-amigo-body').innerHTML = `
+            <div class="mb-4">${fotoHtml}</div>
+            <h3 class="text-2xl font-black text-gray-800 uppercase">${limpiarTexto(u.name)}</h3>
+            <div class="grid grid-cols-2 gap-2 mt-4 bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                <div>
+                    <p class="text-xs font-black text-gray-400 uppercase">Género</p>
+                    <p class="text-lg font-bold text-[#8A63F6]">${u.genero || 'N/A'}</p>
+                </div>
+                <div class="border-l border-gray-200">
+                    <p class="text-xs font-black text-gray-400 uppercase">Edad</p>
+                    <p class="text-lg font-bold text-[#8A63F6]">${edad} años</p>
+                </div>
+            </div>
+            <p class="text-black font-bold mt-6 text-lg">¿Enviar solicitud de amistad?</p>`;
+        
+        document.getElementById('amigo-form-content').classList.remove('hidden');
+        document.getElementById('amigo-exito-content').classList.add('hidden');
+        document.getElementById('ModalAñadirAmigo').classList.remove('hidden');
+    };
+
+    document.getElementById('confirmarAñadirAmigoBtn').onclick = function() {
+        ejecutarPost(`/amigos/${amigoSel.id}/solicitar`, 'amigo', `Solicitud enviada a ${amigoSel.name}`);
+    };
+
+    function ejecutarPost(url, tipo, msgExito) {
+        const btn = tipo === 'act' ? document.getElementById('confirmarInscripcionBtn') : document.getElementById('confirmarAñadirAmigoBtn');
+        btn.disabled = true;
+        btn.innerText = "PROCESANDO...";
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`exito-msg-${tipo}`).innerText = msgExito;
+                document.getElementById(`${tipo}-form-content`).classList.add('hidden');
+                document.getElementById(`${tipo}-exito-content`).classList.remove('hidden');
+                if(tipo === 'act') {
+                    const b = document.getElementById(`btn-${actSel.id}`);
+                    if(b) { b.disabled = true; b.innerText = "¡Apuntado!"; b.className = "bg-gray-100 text-gray-400 px-4 py-1.5 rounded-lg font-black text-xs uppercase cursor-default"; }
+                }
+            } else { alert(data.message || "Error"); }
+        })
+        .finally(() => { 
+            btn.disabled = false; 
+            btn.innerText = tipo === 'act' ? "Confirmar Inscripción" : "Enviar Solicitud";
+        });
+    }
+
+    // --- CARGA INFINITA ---
+    $(document).ready(function () {
+        $('#btn-cargar-mas').on('click', function () {
+            let btn = $(this);
+            let pagina = btn.data('pagina');
+            $.ajax({ url: "?page=" + pagina, type: "get", beforeSend: function() { btn.text('Cargando...').prop('disabled', true); } })
+            .done(function(data) {
+                if (data.trim().length == 0) { $('#wrapper-btn-cargar').html('No hay más'); return; }
+                $("#contenedor-actividades").append(data);
+                let perPage = btn.data('perpage');
+                let quedan = btn.data('total') - (pagina * perPage);
+                if (quedan <= 0) { $('#wrapper-btn-cargar').hide(); } 
+                else { $('#num-restantes').text(quedan); btn.data('pagina', pagina + 1).text('Más Actividades').prop('disabled', false); }
+            });
+        });
+    });
+</script>
+@endsection

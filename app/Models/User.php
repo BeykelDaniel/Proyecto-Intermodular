@@ -2,25 +2,14 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    public function actividades()
-    {
-        return $this->belongsToMany(Actividades::class , 'actividad_user', 'user_id', 'actividades_id');
-    }
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -33,21 +22,11 @@ class User extends Authenticatable
         'biografia',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -57,29 +36,48 @@ class User extends Authenticatable
         ];
     }
 
-    // Amigos aceptados (bidireccional simulado)
-    public function amigos()
-    {
-        return $this->belongsToMany(User::class, 'amigos', 'user_id', 'amigo_id')
-                    ->wherePivot('status', 'aceptada');
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | RELACIONES DE ACTIVIDADES Y POSTS
+    |--------------------------------------------------------------------------
+    */
 
-    // Solicitudes recibidas (pendientes)
-    public function friendRequestsReceived()
+    public function actividades()
     {
-        return $this->belongsToMany(User::class, 'amigos', 'amigo_id', 'user_id')
-                    ->wherePivot('status', 'pendiente');
-    }
-
-    // Solicitudes enviadas (pendientes)
-    public function friendRequestsSent()
-    {
-        return $this->belongsToMany(User::class, 'amigos', 'user_id', 'amigo_id')
-                    ->wherePivot('status', 'pendiente');
+        return $this->belongsToMany(Actividades::class , 'actividad_user', 'user_id', 'actividades_id');
     }
 
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SISTEMA DE AMIGOS
+    |--------------------------------------------------------------------------
+    */
+
+    // Amigos que ya han aceptado la solicitud
+    public function amigos()
+    {
+        return $this->belongsToMany(User::class, 'amigos', 'user_id', 'amigo_id')
+                    ->withPivot('status')
+                    ->wherePivot('status', 'aceptada');
+    }
+
+    // Solicitudes que YO he enviado (quitamos el wherePivot para que funcione el attach)
+    public function friendRequestsSent()
+    {
+        return $this->belongsToMany(User::class, 'amigos', 'user_id', 'amigo_id')
+                    ->withPivot('status');
+    }
+
+    // Solicitudes que HE RECIBIDO y están esperando respuesta
+    public function friendRequestsReceived()
+    {
+        return $this->belongsToMany(User::class, 'amigos', 'amigo_id', 'user_id')
+                    ->withPivot('status')
+                    ->wherePivot('status', 'pendiente');
     }
 }

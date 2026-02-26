@@ -27,23 +27,25 @@ class InscripcionesController extends Controller
     return response()->json(['success' => 'Inscrito correctamente']);
 }
 
+// En InscripcionesController.php
 public function inscritas()
 {
     $user = auth()->user();
     if (!$user) return response()->json([]);
 
-    $actividades = $user->actividades->map(function($act) {
+    // Usamos get() para obtener los datos reales antes del map
+    $actividades = $user->actividades()->get()->map(function($act) {
         return [
             'fecha' => $act->fecha,
             'nombre' => $act->nombre,
             'color' => $this->generarColor($act->nombre),
-            'fechaFormateada' => \Carbon\Carbon::parse($act->fecha)->format('d/m/Y')
+            // Validación de fecha para evitar el Error 500
+            'fechaFormateada' => $act->fecha ? \Carbon\Carbon::parse($act->fecha)->format('d/m/Y') : 'Pendiente'
         ];
     });
 
     return response()->json($actividades);
 }
-
 private function generarColor($str) {
     $colores = ['#bc6a50', '#2d6a4f', '#1d3557', '#e63946', '#ffb703', '#8338ec', '#0077b6'];
     $hash = 0; 

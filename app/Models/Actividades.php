@@ -32,9 +32,7 @@ class Actividades extends Model
     /**
      * Relación con la tabla 'media' (fotos y vídeos)
      */
-    public function media()
-    {
-        return $this->hasMany(Media::class, 'actividad_id');
-    }
-
+public function media() {
+    return $this->hasMany(\App\Models\Media::class, 'actividad_id');
+}
 }
