@@ -34,9 +34,9 @@
                             @endif
                         </div>
                         <div class="flex flex-col {{ $msg->user_id == auth()->id() ? 'items-end' : '' }} max-w-[70%]">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-[11px] font-black text-gray-400 uppercase tracking-widest">{{ $msg->user_id == auth()->id() ? 'Tú' : $msg->user->name }}</span>
-                                <span class="text-[10px] font-bold text-gray-300">{{ $msg->created_at->diffForHumans() }}</span>
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-base font-black text-gray-500 uppercase tracking-widest">{{ $msg->user_id == auth()->id() ? 'Tú' : $msg->user->name }}</span>
+                                <span class="text-sm font-bold text-gray-400 italic">{{ $msg->created_at->diffForHumans() }}</span>
                             </div>
                             <div class="p-5 rounded-[25px] w-fit shadow-sm {{ $msg->user_id == auth()->id() ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none border border-gray-100' }}">
                                 <p class="text-lg font-bold leading-relaxed">{{ $msg->contenido }}</p>
@@ -102,9 +102,9 @@
                             div.innerHTML = `
                                 <div class="shrink-0">${avatar}</div>
                                 <div class="flex flex-col ${isOwn ? 'items-end' : ''} max-w-[70%]">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-[11px] font-black text-gray-400 uppercase tracking-widest">${isOwn ? 'Tú' : msg.user.name}</span>
-                                        <span class="text-[10px] font-bold text-gray-300">Ahora mismo</span>
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <span class="text-base font-black text-gray-500 uppercase tracking-widest">${isOwn ? 'Tú' : msg.user.name}</span>
+                                        <span class="text-sm font-bold text-gray-400 italic">Ahora mismo</span>
                                     </div>
                                     <div class="p-5 rounded-[25px] w-fit shadow-sm ${isOwn ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'}">
                                         <p class="text-lg font-bold leading-relaxed">${msg.contenido}</p>

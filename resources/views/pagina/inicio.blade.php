@@ -3,7 +3,7 @@
 @section('title', 'Inicio')
 
 @section('contenido')
-<div class="bg-[#C28AED] min-h-screen p-4 font-sans flex flex-col items-center gap-4 rounded-2xl">
+<div class="min-h-screen p-4 font-sans flex flex-col items-center gap-4 rounded-2xl">
 
     {{-- FILA SUPERIOR --}}
     <div class="flex flex-col md:flex-row gap-4 w-full max-w-[1100px] h-auto md:h-[500px] items-stretch">
@@ -12,9 +12,9 @@
                 <div class="w-[220px] shrink-0">
                     <video id="mainVideo" src="{{ asset('vid.mp4') }}" autoplay muted loop controls class="w-full rounded-lg bg-black"></video>
                 </div>
-                <div class="flex-1 overflow-y-auto max-h-[140px]">
-                    <h4 class="m-0 mb-2 text-[#bc6a50] text-lg font-semibold uppercase text-sm italic">Transcripción</h4>
-                    <p class="m-0 text-[#3b4d57] text-sm leading-relaxed text-justify italic">
+                <div class="flex-1 overflow-y-auto max-h-[160px]">
+                    <h4 class="m-0 mb-2 text-[#bc6a50] text-lg font-bold uppercase italic">Transcripción</h4>
+                    <p class="m-0 text-[#3b4d57] text-base leading-relaxed text-justify italic font-medium">
                         "Explora las actividades, añade nuevos amigos y organiza tu calendario sin complicaciones."
                     </p>
                 </div>
@@ -25,12 +25,28 @@
         </div>
 
         {{-- BARRA LATERAL: AMIGOS --}}
+        {{-- BARRA LATERAL: AMIGOS --}}
         <div class="w-full md:w-[240px] bg-white rounded-xl p-4 shadow-sm flex flex-col">
             <h4 class="m-0 mb-3 text-[#bc6a50] text-lg font-semibold border-b pb-2 text-center uppercase text-sm">Añadir Amigos</h4>
             <div class="flex-1 overflow-y-auto custom-scrollbar">
                 <ul class="list-none p-0 m-0">
                     @php
-                        $usuarios_db = \App\Models\User::where('id', '!=', auth()->id())
+                        // Solo ocultamos a:
+                        // 1. Nosotros mismos
+                        // 2. Amigos ya ACEPTADOS (status = aceptada) en cualquier dirección
+                        $idsOcultar = \DB::table('amigos')
+                            ->where(function($q) {
+                                $q->where('user_id', auth()->id())
+                                  ->orWhere('amigo_id', auth()->id());
+                            })
+                            ->where('status', 'aceptada')
+                            ->get()
+                            ->map(function($row) {
+                                return $row->user_id == auth()->id() ? $row->amigo_id : $row->user_id;
+                            })
+                            ->push(auth()->id());
+
+                        $usuarios_db = \App\Models\User::whereNotIn('id', $idsOcultar)
                             ->where('email', '!=', 'cabrerajosedaniel89@gmail.com')
                             ->latest()->take(12)->get();
                     @endphp
@@ -53,10 +69,10 @@
     </div>
 
     {{-- SECCIÓN ACTIVIDADES --}}
-    <div class="w-full max-w-[1100px] bg-white rounded-xl p-6 shadow-sm">
-        <h4 class="m-0 mb-4 text-gray-800 text-xl font-bold border-b pb-3 uppercase flex items-center gap-2">
-            <i class="bi bi-calendar-event text-[#bc6a50]"></i> Próximas Actividades
-        </h4>
+    <section class="w-full max-w-[1100px] bg-white rounded-xl p-6 shadow-sm" aria-labelledby="titulo-actividades">
+        <h2 id="titulo-actividades" class="m-0 mb-4 text-gray-800 text-2xl font-bold border-b pb-3 uppercase flex items-center gap-2">
+            <i class="bi bi-calendar-event text-[#bc6a50]" aria-hidden="true"></i> Próximas Actividades
+        </h2>
         <div id="contenedor-actividades" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @include('actividades.partials.lista')
         </div>
@@ -64,8 +80,9 @@
         @auth
         <div class="mt-8">
             <button onclick="window.location.href='{{ route('actividades.create') }}'"
-                class="w-full h-24 border-4 border-dashed border-indigo-600 rounded-[35px] text-indigo-600 hover:bg-indigo-50 transition-all flex items-center justify-center gap-4 group">
-                <i class="bi bi-plus-circle-fill text-4xl group-hover:scale-110 transition-transform"></i>
+                aria-label="Crear una nueva actividad"
+                class="w-full h-32 border-4 border-dashed border-indigo-600 rounded-[35px] text-indigo-600 hover:bg-indigo-50 transition-all flex flex-col items-center justify-center gap-2 group">
+                <i class="bi bi-plus-circle-fill text-5xl group-hover:scale-110 transition-transform" aria-hidden="true"></i>
                 <span class="text-2xl font-black uppercase tracking-widest">Crear Nueva Actividad</span>
             </button>
         </div>
@@ -74,16 +91,22 @@
         @if($actividades->hasMorePages())
         <div id="wrapper-btn-cargar" class="flex flex-col items-center mt-10 border-t pt-6">
             <button id="btn-cargar-mas" data-pagina="2" 
-                class="bg-[#ecb577] text-white px-10 py-3 rounded-xl font-black uppercase text-xs hover:bg-[#d9a466] shadow-lg transition-all">
+                aria-label="Cargar más actividades en la lista"
+                class="bg-[#ecb577] text-[#212121] px-12 py-4 rounded-xl font-black uppercase text-sm hover:bg-[#d9a466] shadow-lg transition-all min-h-[60px]">
                 Cargar más actividades
             </button>
+            <p id="restantes-cnt" class="mt-4 text-gray-600 font-bold uppercase text-xs tracking-widest hidden" role="status"></p>
         </div>
         @endif
-    </div>
+    </section>
 </div>
 
 {{-- MODAL GLOBAL REFORMADO --}}
-<div id="modalGlobal" class="fixed inset-0 bg-black/70 z-[99999] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+<div id="modalGlobal" 
+    class="fixed inset-0 bg-black/70 z-[99999] hidden flex items-center justify-center p-4 backdrop-blur-sm"
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="modal-title">
     <div id="modalContenido" class="bg-white rounded-[40px] max-w-sm w-full p-8 shadow-2xl transition-all transform scale-95 opacity-0">
         
         {{-- PASO 1: FORMULARIO/INFO --}}
@@ -93,23 +116,23 @@
             </div>
 
             {{-- CONTENEDOR DE ERROR ESTILIZADO (Sustituye al Alert) --}}
-            <div id="error-container" class="hidden mt-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-pulse">
-                <i class="bi bi-exclamation-octagon-fill text-red-500 text-xl"></i>
-                <p id="error-msg" class="text-red-700 text-xs font-black uppercase italic"></p>
+            <div id="error-container" class="hidden mt-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-pulse" role="alert">
+                <i class="bi bi-exclamation-octagon-fill text-red-500 text-xl" aria-hidden="true"></i>
+                <p id="error-msg" class="text-red-700 text-sm font-bold uppercase italic"></p>
             </div>
 
-            <button id="btn-confirmar-accion" class="w-full py-4 text-white rounded-2xl font-black uppercase tracking-widest shadow-lg mt-6 active:scale-95 transition-all"></button>
-            <button onclick="cerrarModal()" class="w-full mt-4 text-gray-400 font-bold uppercase text-xs hover:text-gray-600 transition-colors">Cancelar</button>
+            <button id="btn-confirmar-accion" class="w-full py-5 text-white rounded-2xl font-black uppercase tracking-widest shadow-lg mt-6 active:scale-95 transition-all text-lg"></button>
+            <button onclick="cerrarModal()" class="w-full mt-6 text-gray-500 font-bold uppercase text-sm hover:text-gray-700 transition-colors p-2">Cancelar</button>
         </div>
 
         {{-- PASO 2: ÉXITO --}}
         <div id="step-exito" class="hidden text-center py-6">
-            <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <h3 class="text-2xl font-black text-gray-800 uppercase">¡Completado!</h3>
-            <p id="msg-exito" class="text-gray-500 text-sm mt-2 italic font-medium"></p>
-            <button onclick="cerrarModal()" class="mt-8 w-full py-4 bg-gray-800 text-white rounded-2xl font-black uppercase hover:bg-black transition-all">Cerrar</button>
+            <h3 id="modal-exito-title" class="text-2xl font-black text-gray-800 uppercase">¡Completado!</h3>
+            <p id="msg-exito" class="text-gray-600 text-lg mt-3 italic font-medium"></p>
+            <button onclick="cerrarModal()" class="mt-8 w-full py-5 bg-gray-800 text-white rounded-2xl font-black uppercase hover:bg-black transition-all text-lg">Cerrar</button>
         </div>
     </div>
 </div>
@@ -120,6 +143,16 @@
     // Variables de Estado
     window.itemSeleccionado = null;
     window.tipoAccion = '';
+
+    // Soporte para tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('modalGlobal');
+            if (!modal.classList.contains('hidden')) {
+                cerrarModal();
+            }
+        }
+    });
 
     // 1. DELEGACIÓN DE EVENTOS (Para botones de amigos y actividades)
     document.addEventListener('click', function(e) {
@@ -164,20 +197,21 @@
         document.getElementById('modal-dinamico-body').innerHTML = `
             ${fotoHtml}
             <h3 class="text-2xl font-black text-[#32424D] uppercase mt-4">${user.name}</h3>
-            <div class="grid grid-cols-2 gap-3 mt-6">
-                <div class="bg-gray-50 p-4 rounded-2xl border font-bold italic">
-                    <p class="text-[10px] text-gray-400 uppercase">Género</p>
-                    <p class="text-indigo-600 uppercase text-xs">${user.genero || 'N/A'}</p>
+            <div class="grid grid-cols-2 gap-4 mt-8">
+                <div class="bg-gray-50 p-5 rounded-2xl border-2 font-bold italic">
+                    <p class="text-xs text-gray-500 uppercase tracking-wider">Género</p>
+                    <p class="text-indigo-700 uppercase text-sm">${user.genero || 'N/A'}</p>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-2xl border font-bold italic">
-                    <p class="text-[10px] text-gray-400 uppercase">Edad</p>
-                    <p class="text-indigo-600 uppercase text-xs">${edad} AÑOS</p>
+                <div class="bg-gray-50 p-5 rounded-2xl border-2 font-bold italic">
+                    <p class="text-xs text-gray-500 uppercase tracking-wider">Edad</p>
+                    <p class="text-indigo-700 uppercase text-sm">${edad} AÑOS</p>
                 </div>
             </div>
-            <p class="mt-4 text-gray-400 font-bold uppercase text-[10px]">¿Enviar solicitud de amistad?</p>
+            <p class="mt-6 text-gray-600 font-bold uppercase text-xs tracking-widest">¿Enviar solicitud de amistad?</p>
         `;
 
         const btn = document.getElementById('btn-confirmar-accion');
+        btn.disabled = false;
         btn.innerText = 'ENVIAR SOLICITUD';
         btn.className = "w-full py-4 bg-[#B8A019] text-white rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-[#907D14]";
         
@@ -190,16 +224,17 @@
         
         document.getElementById('modal-dinamico-body').innerHTML = `
             <h3 class="text-2xl font-black text-gray-800 uppercase">${act.nombre}</h3>
-            <div class="my-6 bg-indigo-50 p-6 rounded-[30px] border-2 border-dashed border-indigo-200">
-                <p class="text-indigo-600 font-bold uppercase tracking-widest text-[10px] mb-1">Lugar del evento</p>
-                <p class="text-gray-800 font-black italic mb-3">${act.lugar}</p>
-                <div class="h-[1px] bg-indigo-100 mb-3"></div>
-                <p class="text-indigo-600 font-bold uppercase tracking-widest text-[10px] mb-1">Hora inicio</p>
-                <p class="text-3xl font-black text-indigo-700 italic">${act.hora.substring(0,5)}h</p>
+            <div class="my-6 bg-indigo-50 p-8 rounded-[30px] border-2 border-dashed border-indigo-200">
+                <p class="text-indigo-700 font-bold uppercase tracking-widest text-xs mb-2">Lugar del evento</p>
+                <p class="text-gray-900 font-black italic mb-4 text-xl">${act.lugar}</p>
+                <div class="h-[2px] bg-indigo-100 mb-4"></div>
+                <p class="text-indigo-700 font-bold uppercase tracking-widest text-xs mb-2">Hora inicio</p>
+                <p class="text-4xl font-black text-indigo-800 italic">${act.hora.substring(0,5)}h</p>
             </div>
         `;
 
         const btn = document.getElementById('btn-confirmar-accion');
+        btn.disabled = false;
         btn.innerText = 'CONFIRMAR ASISTENCIA';
         btn.className = "w-full py-4 bg-[#bc6a50] text-white rounded-2xl font-black uppercase tracking-widest shadow-lg hover:bg-[#8e4f3c]";
         
@@ -254,6 +289,9 @@
 
                 // Reactividad en la lista
                 if(window.tipoAccion === 'actividad') {
+                    // Notificar al calendario de la navbar
+                    window.dispatchEvent(new CustomEvent('inscripcion-actualizada'));
+
                     const selector = `[data-actividad*='"id":${window.itemSeleccionado.id}']`;
                     const bOriginal = document.querySelector(selector);
                     if(bOriginal) {
@@ -287,6 +325,34 @@
 
     // 5. CARGAR MÁS (SCROLL INFINITO)
     $(document).ready(function() {
+        // Inicializar contador de actividades restantes
+        @php
+            $ahora = \Carbon\Carbon::now();
+            $hoyNum = $ahora->toDateString();
+            $horaNum = $ahora->toTimeString();
+            $totalActividades = \App\Models\Actividades::where(function($query) use ($hoyNum, $horaNum) {
+                $query->where('fecha', '>', $hoyNum)
+                      ->orWhere(function($q) use ($hoyNum, $horaNum) {
+                          $q->where('fecha', $hoyNum)
+                            ->where('hora', '>=', $horaNum);
+                      });
+            })->count();
+        @endphp
+        let totalActividades = {{ $totalActividades }};
+        let mostradas = {{ $actividades->count() }};
+        
+        function actualizarContador() {
+            let restantes = totalActividades - mostradas;
+            if (restantes > 0) {
+                $('#restantes-cnt').html(`QUEDAN <span class="text-blue-600 font-black">${restantes}</span> ACTIVIDADES OCULTAS`);
+                $('#restantes-cnt').show();
+            } else {
+                $('#restantes-cnt').hide();
+            }
+        }
+
+        actualizarContador();
+
         $('#btn-cargar-mas').on('click', function() {
             let btn = $(this);
             let pagina = btn.data('pagina');
@@ -294,9 +360,23 @@
             
             $.get("?page=" + pagina, function(data) {
                 if(data.trim()) {
-                    $("#contenedor-actividades").append(data);
-                    btn.data('pagina', pagina + 1).prop('disabled', false).text('Cargar más actividades');
-                } else { btn.hide(); }
+                    let tempDiv = $('<div>').append(data);
+                    // Contamos los elementos por su clase de contenedor
+                    let nuevas = tempDiv.find('.actividad-item').length; 
+                    
+                    if (nuevas > 0) {
+                        $("#contenedor-actividades").append(data);
+                        mostradas += nuevas;
+                        btn.data('pagina', pagina + 1).prop('disabled', false).text('Cargar más actividades');
+                        actualizarContador();
+                    } else {
+                        btn.hide();
+                        $('#restantes-cnt').hide();
+                    }
+                } else { 
+                    btn.hide(); 
+                    $('#restantes-cnt').hide();
+                }
             });
         });
     });

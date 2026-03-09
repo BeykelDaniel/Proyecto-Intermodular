@@ -13,7 +13,7 @@
         </div>
 
         <div class="relative inline-block mb-8">
-            <img src="{{ $usuario->perfil_foto ? '/' . $usuario->perfil_foto : 'https://ui-avatars.com/api/?name='.urlencode($usuario->name).'&size=200' }}" 
+            <img src="{{ $usuario->perfil_foto ? asset($usuario->perfil_foto) : 'https://ui-avatars.com/api/?name='.urlencode($usuario->name).'&size=200' }}" 
                  class="w-48 h-48 rounded-[50px] object-cover border-8 border-white shadow-2xl mx-auto">
             <div class="absolute -bottom-2 -right-2 w-12 h-12 bg-green-500 border-4 border-white rounded-full"></div>
         </div>
@@ -110,7 +110,7 @@
                 document.getElementById('texto-exito').innerText = 
                     accion === 'aceptar' ? '¡Ahora sois amigos!' : 'Solicitud rechazada';
 
-                // Si aceptó, podemos redirigir tras un segundo para que vea el éxito
+                // Redirección tras éxito
                 setTimeout(() => {
                     window.location.href = (accion === 'aceptar') 
                         ? '{{ route("pagina.amigos") }}' 

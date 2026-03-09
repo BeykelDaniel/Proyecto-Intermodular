@@ -131,10 +131,12 @@ export default {
         console.log("CalendarioNavbar montado. Inscripciones iniciales:", this.inscripciones.length);
         if (this.isAuth) {
             this.interval = setInterval(this.poll, 10000);
+            window.addEventListener('inscripcion-actualizada', this.poll);
         }
     },
     beforeUnmount() {
         if (this.interval) clearInterval(this.interval);
+        window.removeEventListener('inscripcion-actualizada', this.poll);
         if (this.fp) this.fp.destroy();
     }
 }

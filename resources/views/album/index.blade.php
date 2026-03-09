@@ -181,6 +181,9 @@
     };
 
     document.getElementById('confirmarInscripcionBtn').onclick = function() {
+        const btn = document.getElementById('confirmarInscripcionBtn');
+        btn.disabled = false;
+        btn.innerText = "Confirmar Inscripción";
         ejecutarPost(`/actividades/${actSel.id}/inscribir`, 'act', `Te has inscrito en ${actSel.nombre}`);
     };
 
@@ -221,6 +224,9 @@
     };
 
     document.getElementById('confirmarAñadirAmigoBtn').onclick = function() {
+        const btn = document.getElementById('confirmarAñadirAmigoBtn');
+        btn.disabled = false;
+        btn.innerText = "Enviar Solicitud";
         ejecutarPost(`/amigos/${amigoSel.id}/solicitar`, 'amigo', `Solicitud enviada a ${amigoSel.name}`);
     };
 
@@ -239,7 +245,11 @@
                 document.getElementById(`exito-msg-${tipo}`).innerText = msgExito;
                 document.getElementById(`${tipo}-form-content`).classList.add('hidden');
                 document.getElementById(`${tipo}-exito-content`).classList.remove('hidden');
+                
                 if(tipo === 'act') {
+                    // Notificar al calendario de la navbar
+                    window.dispatchEvent(new CustomEvent('inscripcion-actualizada'));
+
                     const b = document.getElementById(`btn-${actSel.id}`);
                     if(b) { b.disabled = true; b.innerText = "¡Apuntado!"; b.className = "bg-gray-100 text-gray-400 px-4 py-1.5 rounded-lg font-black text-xs uppercase cursor-default"; }
                 }

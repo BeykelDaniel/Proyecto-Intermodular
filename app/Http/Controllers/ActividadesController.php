@@ -36,13 +36,22 @@ class ActividadesController extends Controller
      */
     public function indexPrincipal(Request $request)
     {
-        // Obtenemos la fecha de hoy (formato YYYY-MM-DD)
-        $hoy = Carbon::today()->toDateString();
+        // Obtenemos el momento actual
+        $ahora = Carbon::now();
+        $hoy = $ahora->toDateString();
+        $horaActual = $ahora->toTimeString();
 
-        // Filtramos: Solo actividades cuya fecha sea hoy o en el futuro
-        $actividades = Actividades::where('fecha', '>=', $hoy)
-            ->orderBy('fecha', 'asc')
-            ->paginate(4);
+        // Filtramos: Solo actividades futuras (o de hoy pero que no hayan pasado de hora)
+        $actividades = Actividades::where(function($query) use ($hoy, $horaActual) {
+            $query->where('fecha', '>', $hoy)
+                  ->orWhere(function($q) use ($hoy, $horaActual) {
+                      $q->where('fecha', $hoy)
+                        ->where('hora', '>=', $horaActual);
+                  });
+        })
+        ->orderBy('fecha', 'asc')
+        ->orderBy('hora', 'asc')
+        ->paginate(4);
 
         // Actividades del usuario logueado (para la sección "Mis Álbumes")
         $mis_actividades = [];

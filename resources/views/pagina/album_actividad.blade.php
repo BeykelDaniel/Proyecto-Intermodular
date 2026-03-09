@@ -187,12 +187,11 @@ document.getElementById('btnConfirmarEliminar').onclick = function(){
     const id = itemAEliminar;
     cerrarConfirmar();
     
-    const eliminarUrl = `{{ url('album') }}/${id}`;
-    
-    // Usamos POST con _method=DELETE (Spoofing) para evitar bloqueos de métodos HTTP en XAMPP/Apache
+    // Usamos POST con spoofing de DELETE para máxima compatibilidad con XAMPP/Apache
+    const eliminarUrl = `/album/${id}`;
     const formData = new FormData();
     formData.append('_method', 'DELETE');
-
+    
     fetch(eliminarUrl, {
         method: 'POST',
         headers: {
