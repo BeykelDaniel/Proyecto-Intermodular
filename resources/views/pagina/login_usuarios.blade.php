@@ -4,9 +4,8 @@
 
 @section('contenido')
 <div class="max-w-6xl mx-auto py-12 px-4">
-    <div class="text-center mb-16">
-        <h1 class="text-5xl font-black text-[#32424D] mb-4 uppercase tracking-tighter">¡Hola de nuevo!</h1>
-        <p class="text-xl text-gray-500 font-medium">Entra en tu comunidad o crea una cuenta nueva en un minuto.</p>
+    <div class="text-center mb-5">
+        <img src="{{ asset('bienvenida-banner.png') }}" class="mb-5 mx-auto w-3/4 max-w-[20px] rounded-2xl" alt="Bienvenida">
     </div>
 
     <div class="flex flex-col lg:flex-row gap-12 items-start">

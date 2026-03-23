@@ -36,5 +36,17 @@ class DatabaseSeeder extends Seeder
             'numero_telefono' => '600000000',
         ]
         );
+
+        User::updateOrCreate(
+        ['email' => 'admin@gmail.com'],
+        [
+            'name' => 'Admin',
+            'password' => Hash::make('Admin1234'),
+            'fecha_nacimiento' => '2005-06-04',
+            'genero' => 'hombre',
+            'numero_telefono' => '600000000',
+        ]
+        );
+
     }
 }
