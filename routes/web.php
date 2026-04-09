@@ -53,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
 
     // --- ACTIVIDADES E INSCRIPCIONES ---
     Route::get('/actividades/inscritas', [InscripcionesController::class, 'inscritas'])->name('actividades.inscritas');
+    Route::get('/actividades/mis-citas', [InscripcionesController::class, 'mis_inscripciones'])->name('actividades.mis_inscripciones');
     Route::post('/actividades/{id}/inscribir', [InscripcionesController::class, 'inscribir'])->name('actividades.inscribir');
     
     // CRUD completo de Actividades (Usando Resource)

@@ -46,4 +46,27 @@ public function inscritas()
 
     return response()->json($actividades);
 }
+
+public function mis_inscripciones(Request $request)
+{
+    $user = auth()->user();
+    if (!$user) return redirect()->route('pagina.login_usuarios');
+
+    $actividades = $user->actividades()->get()->map(function($act) {
+        return [
+            'fecha' => $act->fecha,
+            'nombre' => $act->nombre,
+            'descripcion' => $act->descripcion,
+            'color' => \App\Models\Actividades::generarColor($act->nombre),
+            'fechaFormateada' => $act->fecha ? \Carbon\Carbon::parse($act->fecha)->format('d/m/Y') : 'Pendiente',
+            'hora' => $act->hora,
+            'lugar' => $act->lugar
+        ];
+    });
+
+    // Ordenar actividades por fecha
+    $actividades = $actividades->sortBy('fecha');
+
+    return view('actividades.mis_inscripciones', compact('actividades'));
+}
 }

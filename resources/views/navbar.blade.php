@@ -10,17 +10,7 @@
     }
 @endphp
 
-<!-- Barra Superior Móvil (Visible solo en pantallas pequeñas) -->
-<div class="bg-[#D4B830] lg:hidden w-full h-24 flex items-center justify-between px-6 shadow-md z-[60] fixed top-0 left-0">
-    <a href="{{ route('pagina.inicio') }}" class="block p-1 bg-white rounded-full">
-        <img src="{{ asset('logo.png') }}" class="h-16 w-16 rounded-full border border-gray-200 object-cover">
-    </a>
-    <button id="menu-toggle" aria-label="Abrir menú" class="text-white focus:outline-none p-2 border-2 border-white rounded-xl hover:bg-white/20 transition-colors">
-        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-    </button>
-</div>
+
 
 <!-- Sidebar Principal -->
 <nav id="sidebar"
@@ -43,14 +33,14 @@
     <!-- Enlaces (Todos con tamaño text-2xl / lg:text-xl uniforme) -->
     <ul id="nav-lista-nueva" class="w-full flex flex-col items-start px-8 gap-y-8 font-black text-[#32424D] text-lg lg:text-lg">
         
-        <li class="w-full">
+        <li class="w-full hidden lg:block">
             <a href="{{ route('pagina.amigos') }}" class="hover:text-[#C2841D] transition-colors flex items-center gap-4 w-full uppercase text-2xl lg:text-xl">
                <i class="bi bi-people-fill text-2xl lg:text-xl"></i> Mis Amigos
             </a>
         </li>
         
         <!-- MIS ACTIVIDADES - Componente Vue -->
-        <li class="w-full">
+        <li class="w-full hidden lg:block">
             <calendario-navbar 
                 :initial-inscripciones="{{ json_encode(array_values($inscripciones_data ?? [])) }}" 
                 route-inscritas="{{ route('actividades.inscritas') }}"
@@ -58,9 +48,9 @@
             </calendario-navbar>
         </li>
 
-        <li class="w-full">
+        <li class="w-full hidden lg:block">
             <a href="{{ route('pagina.comunidades') }}" class="hover:text-[#C2841D] transition-colors flex items-center gap-4 w-full uppercase text-2xl lg:text-xl transform hover:translate-x-2 transition-transform">
-                Comunidades
+                <i class="fa-solid fa-users text-2xl lg:text-xl"></i> Comunidades
             </a>
         </li>
 
@@ -105,11 +95,10 @@
     </ul>
 </nav>
 
-<!-- Espaciador para vista móvil (empuja el contenido hacia abajo) -->
-<div class="lg:hidden h-24 w-full"></div>
+
 
 <!-- Barra de Navegación Inferior (Móvil) -->
-<div id="barra-inferior" class="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 z-[9999] flex justify-around items-center py-2 shadow-[0_-10px_40px_rgba(0,0,0,0.15)] rounded-t-[30px]" style="display: flex !important;">
+<div id="barra-inferior" class="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 z-[9999] flex justify-around items-center py-2 shadow-[0_-10px_40px_rgba(0,0,0,0.15)] rounded-t-[30px]">
     <a href="{{ route('pagina.inicio') }}" class="flex-1 flex flex-col items-center gap-1 transition-all active:scale-90 {{ request()->routeIs('pagina.inicio') ? 'text-[#bc6a50]' : 'text-[#32424D]/60' }}" style="color: {{ request()->routeIs('pagina.inicio') ? '#bc6a50' : '#32424Dbb' }} !important;">
         <i class="bi bi-house-door-fill text-[1.4rem]"></i>
         <span class="text-[10px] font-black uppercase leading-none">Inicio</span>
@@ -118,27 +107,18 @@
         <i class="bi bi-people-fill text-[1.4rem]"></i>
         <span class="text-[10px] font-black uppercase leading-none">Amigos</span>
     </a>
-    <a href="{{ route('actividades.inscritas') }}" class="flex-1 flex flex-col items-center gap-1 transition-all active:scale-90 {{ request()->routeIs('actividades.inscritas') ? 'text-[#bc6a50]' : 'text-[#32424D]/60' }}" style="color: {{ request()->routeIs('actividades.inscritas') ? '#bc6a50' : '#32424Dbb' }} !important;">
+    <a href="{{ route('actividades.mis_inscripciones') }}" class="flex-1 flex flex-col items-center gap-1 transition-all active:scale-90 {{ request()->routeIs('actividades.mis_inscripciones') ? 'text-[#bc6a50]' : 'text-[#32424D]/60' }}" style="color: {{ request()->routeIs('actividades.mis_inscripciones') ? '#bc6a50' : '#32424Dbb' }} !important;">
         <i class="bi bi-calendar-check-fill text-[1.4rem]"></i>
         <span class="text-[10px] font-black uppercase leading-none">Citas</span>
     </a>
     <a href="{{ route('pagina.comunidades') }}" class="flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-90 {{ request()->routeIs('pagina.comunidades') ? 'text-[#bc6a50]' : 'text-[#32424D]/60' }}" style="color: {{ request()->routeIs('pagina.comunidades') ? '#bc6a50' : '#32424Dbb' }} !important;">
-        <span class="text-[10px] font-black uppercase leading-none mt-2">Comunidad</span>
+        <i class="fa-solid fa-users text-[1.4rem]"></i>
+        <span class="text-[10px] font-black uppercase leading-none">Comunidad</span>
     </a>
-    <a href="{{ Auth::check() ? route('profile.edit') : route('pagina.login_usuarios') }}" class="flex-1 flex flex-col items-center gap-1 transition-all active:scale-90 {{ (request()->routeIs('profile.edit') || request()->routeIs('pagina.login_usuarios')) ? 'text-[#bc6a50]' : 'text-[#32424D]/60' }}" style="color: {{ (request()->routeIs('profile.edit') || request()->routeIs('pagina.login_usuarios')) ? '#bc6a50' : '#32424Dbb' }} !important;">
-        <div class="flex items-center justify-center w-6 h-6">
-            @auth
-                @if(Auth::user()->perfil_foto)
-                    <img src="{{ asset(Auth::user()->perfil_foto) }}" class="w-full h-full rounded-full border-2 {{ request()->routeIs('profile.edit') ? 'border-[#bc6a50]' : 'border-gray-300' }} object-cover">
-                @else
-                    <i class="bi bi-person-circle text-[1.4rem]"></i>
-                @endif
-            @else
-                <i class="bi bi-person-circle text-[1.4rem]"></i>
-            @endauth
-        </div>
-        <span class="text-[10px] font-black uppercase leading-none">{{ Auth::check() ? 'Perfil' : 'Entrar' }}</span>
-    </a>
+    <button id="menu-toggle" class="flex-1 flex flex-col items-center justify-center gap-1 transition-all active:scale-90 text-[#32424D]/60 focus:outline-none" style="color: #32424Dbb !important;">
+        <i class="bi bi-list text-[1.8rem] leading-none mb-[-2px]"></i>
+        <span class="text-[10px] font-black uppercase leading-none">Menú</span>
+    </button>
 </div>
 
 @push('scripts')
