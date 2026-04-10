@@ -70,17 +70,7 @@
                 </form>
             </div>
 
-            {{-- ZONA DE PELIGRO --}}
-            <div class="bg-red-50/50 rounded-[50px] p-10 border-4 border-dashed border-red-100 flex flex-col md:flex-row items-center justify-between gap-8">
-                <div class="text-center md:text-left">
-                    <h3 class="text-2xl font-black text-red-800 uppercase mb-2">¿Quieres dejarnos?</h3>
-                    <p class="text-lg font-bold text-red-700/60 leading-tight">Borrar tu cuenta es permanente y borrará todos tus datos, fotos y amigos.</p>
-                </div>
-                <button onclick="confirmarEliminar()" class="bg-red-600 text-white font-black px-10 py-5 rounded-3xl hover:bg-red-700 transition-all shadow-lg uppercase tracking-tight whitespace-nowrap">
-                    Eliminar mi cuenta
-                </button>
-            </div>
-        </div>
+           
 
         {{-- COLUMNA DERECHA: FOTO Y FUENTE --}}
         <div class="space-y-12">
@@ -165,7 +155,19 @@
                         Aplicar a toda la web
                     </button>
                 </form>
+                
             </div>
+            {{-- ZONA DE PELIGRO --}}
+            <div class="bg-red-50/50 rounded-[50px] p-10 border-4 border-dashed border-red-100 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="text-center md:text-left">
+                    <h3 class="text-2xl font-black text-red-800 uppercase mb-2">¿Quieres dejarnos?</h3>
+                    <p class="text-lg font-bold text-red-700/60 leading-tight">Borrar tu cuenta es permanente y borrará todos tus datos, fotos y amigos.</p>
+                </div>
+                <button onclick="confirmarEliminar()" class="bg-red-600 text-white font-black px-10 py-5 rounded-3xl hover:bg-red-700 transition-all shadow-lg uppercase tracking-tight whitespace-nowrap">
+                    Eliminar mi cuenta
+                </button>
+            </div>
+        </div>
         </div>
     </div>
 </div>
